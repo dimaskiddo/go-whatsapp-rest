@@ -40,67 +40,68 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 		errDataRequest := json.NewDecoder(r.Body).Decode(&dataRequest)
 		if errDataRequest != nil {
-			svc.ResponseInternalError(w, errDataRequest.Error())
-		} else {
 			if len(dataRequest.Format) != 0 {
-				errConnectionCreate := hlp.WhatsAppConnect(msisdn, dataRequest.Timeout)
-				if errConnectionCreate != nil {
-					svc.ResponseInternalError(w, errConnectionCreate.Error())
-				} else {
-					fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
+				dataRequest.Format = "json"
+			}
+			if dataRequest.Timeout == 0 {
+				dataRequest.Timeout = 10
+			}
+		}
 
-					loginQRCode := make(chan []byte)
-					loginError := make(chan error)
+		errConnectionCreate := hlp.WhatsAppConnect(msisdn, dataRequest.Timeout)
+		if errConnectionCreate != nil {
+			svc.ResponseInternalError(w, errConnectionCreate.Error())
+		} else {
+			fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
 
-					go func() {
-						hlp.WhatsAppLogin(msisdn, dataRequest.Timeout, fileSession, loginQRCode, loginError)
-					}()
+			loginQRCode := make(chan []byte)
+			loginError := make(chan error)
 
-					select {
-					case qrCodeLogin := <-loginQRCode:
-						qrCodeEncoded := base64.StdEncoding.EncodeToString(qrCodeLogin)
+			go func() {
+				hlp.WhatsAppLogin(msisdn, dataRequest.Timeout, fileSession, loginQRCode, loginError)
+			}()
 
-						switch strings.ToLower(dataRequest.Format) {
-						case "json":
-							var response formatWhatsAppLoginQR
+			select {
+			case qrCodeLogin := <-loginQRCode:
+				qrCodeEncoded := base64.StdEncoding.EncodeToString(qrCodeLogin)
 
-							response.Status = true
-							response.Code = 200
-							response.Message = "Success"
-							response.Data = map[string]string{
-								"qrcode": "data:image/png;base64," + qrCodeEncoded,
-							}
+				switch strings.ToLower(dataRequest.Format) {
+				case "json":
+					var response formatWhatsAppLoginQR
 
-							svc.ResponseWrite(w, response.Code, response)
-						case "html":
-							var response string
-
-							response = `
-              <html>
-                <head>
-                  <title>WhatsApp Login</title>
-                </head>
-
-                <body>
-                  <img src="data:image/png;base64,` + qrCodeEncoded + `" />
-                </body>
-              </html>
-              `
-
-							w.Write([]byte(response))
-						default:
-							svc.ResponseBadRequest(w, "")
-						}
-					case errLogin := <-loginError:
-						if len(errLogin.Error()) != 0 {
-							svc.ResponseInternalError(w, errLogin.Error())
-						} else {
-							svc.ResponseSuccess(w, "")
-						}
+					response.Status = true
+					response.Code = 200
+					response.Message = "Success"
+					response.Data = map[string]string{
+						"qrcode": "data:image/png;base64," + qrCodeEncoded,
 					}
+
+					svc.ResponseWrite(w, response.Code, response)
+				case "html":
+					var response string
+
+					response = `
+          <html>
+            <head>
+              <title>WhatsApp Login</title>
+            </head>
+
+            <body>
+              <img src="data:image/png;base64,` + qrCodeEncoded + `" />
+            </body>
+          </html>
+          `
+
+					w.Write([]byte(response))
+				default:
+					svc.ResponseBadRequest(w, "")
 				}
-			} else {
-				svc.ResponseBadRequest(w, "")
+			case errLogin := <-loginError:
+				if len(errLogin.Error()) != 0 {
+					svc.ResponseInternalError(w, errLogin.Error())
+				} else {
+					svc.ResponseSuccess(w, "")
+				}
 			}
 		}
 	}
@@ -136,13 +137,17 @@ func WhatsAppSendMessageText(w http.ResponseWriter, r *http.Request) {
 		if errDataRequest != nil {
 			svc.ResponseInternalError(w, errDataRequest.Error())
 		} else {
-			fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
+			if len(dataRequest.MSISDN) != 0 || len(dataRequest.Message) != 0 {
+				fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
 
-			errSendMessageText := hlp.WhatsAppSendMessageText(msisdn, fileSession, dataRequest.MSISDN, dataRequest.Message, dataRequest.Delay)
-			if errSendMessageText != nil {
-				svc.ResponseInternalError(w, errSendMessageText.Error())
+				errSendMessageText := hlp.WhatsAppSendMessageText(msisdn, fileSession, dataRequest.MSISDN, dataRequest.Message, dataRequest.Delay)
+				if errSendMessageText != nil {
+					svc.ResponseInternalError(w, errSendMessageText.Error())
+				} else {
+					svc.ResponseSuccess(w, "")
+				}
 			} else {
-				svc.ResponseSuccess(w, "")
+				svc.ResponseBadRequest(w, "")
 			}
 		}
 	}

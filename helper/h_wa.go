@@ -42,17 +42,12 @@ func WhatsAppLogin(msisdn string, timeout time.Duration, fileSession string, cha
 		errSessionRestore := WhatsAppSessionRestore(msisdn, fileSession)
 		if errSessionRestore != nil {
 			// If Restore Session Error Then
-			// Check If Session File Exist
-			_, errFileSessionExist := os.Stat(fileSession)
-			if errFileSessionExist == nil {
-				// If Session File Exist
-				// Try To Remove Session File
-				errFileSessionRemove := os.Remove(fileSession)
-				if errFileSessionRemove != nil {
-					// Return Session File Remove Error
-					// Using Error Message Channel
-					chanError <- errFileSessionRemove
-				}
+			// Try To Remove Session File
+			errFileSessionRemove := os.Remove(fileSession)
+			if errFileSessionRemove != nil {
+				// Return Session File Remove Error
+				// Using Error Message Channel
+				chanError <- errFileSessionRemove
 			}
 
 			// Create QR Code Data Channel With Type String
@@ -217,36 +212,21 @@ func WhatsAppSessionLoad(fileSession string) (whatsApp.Session, error) {
 	// Create Empty Session Data
 	dataSession := whatsApp.Session{}
 
-	// Check If Session File Exist
-	_, errFileSessionExist := os.Stat(fileSession)
-	if errFileSessionExist == nil {
-		// If Session File Exist
+	// Try To Load Session File
+	fileSessionLoad, errFileSessionLoad := os.Open(fileSession)
+	if errFileSessionLoad != nil {
+		// Return Empty Session Data And Session File Open Error
+		return dataSession, errFileSessionLoad
+	}
 
-		// Try To Load Session File
-		fileSessionLoad, errFileSessionLoad := os.Open(fileSession)
-		if errFileSessionLoad != nil {
-			// Return Empty Session Data And Session File Open Error
-			return dataSession, errFileSessionLoad
-		}
+	// Close Session File When Function Is Done
+	defer fileSessionLoad.Close()
 
-		// Close Session File When Function Is Done
-		defer fileSessionLoad.Close()
-
-		// Try To Decode Session File Content And Restore It Session Data
-		errSesionDecode := gob.NewDecoder(fileSessionLoad).Decode(&dataSession)
-		if errSesionDecode != nil {
-			// Return Empty Session Data And Session File Content Decode Error
-			return dataSession, errSesionDecode
-		}
-	} else {
-		// Check If Session File Existence Check Error Caused By Session File Not Found
-		if os.IsNotExist(errFileSessionExist) {
-			// Return Session File Not Found
-			return dataSession, errors.New("session file not found")
-		}
-
-		// Return Session File Exist Error
-		return dataSession, errFileSessionExist
+	// Try To Decode Session File Content And Restore It Session Data
+	errSesionDecode := gob.NewDecoder(fileSessionLoad).Decode(&dataSession)
+	if errSesionDecode != nil {
+		// Return Empty Session Data And Session File Content Decode Error
+		return dataSession, errSesionDecode
 	}
 
 	// Return Session Data And No Error
@@ -255,18 +235,6 @@ func WhatsAppSessionLoad(fileSession string) (whatsApp.Session, error) {
 
 // WhatsAppSessionSave Function
 func WhatsAppSessionSave(fileSession string, dataSession whatsApp.Session) error {
-	// Check If Session File Exist
-	_, errFileSessionExist := os.Stat(fileSession)
-	if errFileSessionExist == nil {
-		// If Session File Exist
-		// Try To Remove Session File
-		errFileSessionRemove := os.Remove(fileSession)
-		if errFileSessionRemove != nil {
-			// Return Session File Remove Error
-			return errFileSessionRemove
-		}
-	}
-
 	// Try To Create Session File
 	fileSessionSave, errFileSessionSave := os.Create(fileSession)
 	if errFileSessionSave != nil {
