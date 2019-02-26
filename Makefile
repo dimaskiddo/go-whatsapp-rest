@@ -1,6 +1,6 @@
 GO_OUTPUT ?= whatsapp-go
 GO_EXPOSE_PORT ?= 3000
-DOCKER_IMAGE_NAME ?= whatsapp-go-rest
+DOCKER_IMAGE_NAME ?= whatsapp-go
 DOCKER_IMAGE_VERSION ?= latest
 
 git-push:
