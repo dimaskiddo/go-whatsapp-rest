@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	whatsApp "github.com/Rhymen/go-whatsapp"
@@ -273,10 +274,17 @@ func WhatsAppSendMessageText(msisdn string, fileSession string, msisdnDestinatio
 			return errSessionRestore
 		}
 
+		// Set RemoteJID Prefix
+		jidPrefix := "@s.whatsapp.net"
+		jidDestinationCheck := strings.SplitN(msisdn, "-", 2)
+		if len(jidDestinationCheck) == 2 {
+			jidPrefix = "@g.us"
+		}
+
 		// Set Message Text Content
 		msgContent := whatsApp.TextMessage{
 			Info: whatsApp.MessageInfo{
-				RemoteJid: msisdnDestination + "@s.whatsapp.net",
+				RemoteJid: msisdnDestination + jidPrefix,
 			},
 			Text: messageText,
 		}

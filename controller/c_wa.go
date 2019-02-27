@@ -38,14 +38,12 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 		var dataRequest formatWhatsAppLogin
 
-		errDataRequest := json.NewDecoder(r.Body).Decode(&dataRequest)
-		if errDataRequest != nil {
-			if len(dataRequest.Format) == 0 {
-				dataRequest.Format = "json"
-			}
-			if dataRequest.Timeout == 0 {
-				dataRequest.Timeout = 10
-			}
+		_ = json.NewDecoder(r.Body).Decode(&dataRequest)
+		if len(dataRequest.Format) == 0 {
+			dataRequest.Format = "json"
+		}
+		if dataRequest.Timeout == 0 {
+			dataRequest.Timeout = 10
 		}
 
 		errConnectionCreate := hlp.WhatsAppConnect(msisdn, dataRequest.Timeout)
@@ -133,22 +131,18 @@ func WhatsAppSendMessageText(w http.ResponseWriter, r *http.Request) {
 
 		var dataRequest formatWhatsAppSendMessageText
 
-		errDataRequest := json.NewDecoder(r.Body).Decode(&dataRequest)
-		if errDataRequest != nil {
-			svc.ResponseInternalError(w, errDataRequest.Error())
-		} else {
-			if len(dataRequest.MSISDN) != 0 || len(dataRequest.Message) != 0 {
-				fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
+		_ = json.NewDecoder(r.Body).Decode(&dataRequest)
+		if len(dataRequest.MSISDN) != 0 || len(dataRequest.Message) != 0 {
+			fileSession := svc.Config.GetString("SERVER_STORE_PATH") + "/" + msisdn + ".gob"
 
-				errSendMessageText := hlp.WhatsAppSendMessageText(msisdn, fileSession, dataRequest.MSISDN, dataRequest.Message, dataRequest.Delay)
-				if errSendMessageText != nil {
-					svc.ResponseInternalError(w, errSendMessageText.Error())
-				} else {
-					svc.ResponseSuccess(w, "")
-				}
+			errSendMessageText := hlp.WhatsAppSendMessageText(msisdn, fileSession, dataRequest.MSISDN, dataRequest.Message, dataRequest.Delay)
+			if errSendMessageText != nil {
+				svc.ResponseInternalError(w, errSendMessageText.Error())
 			} else {
-				svc.ResponseBadRequest(w, "")
+				svc.ResponseSuccess(w, "")
 			}
+		} else {
+			svc.ResponseBadRequest(w, "")
 		}
 	}
 }
