@@ -40,7 +40,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 		errDataRequest := json.NewDecoder(r.Body).Decode(&dataRequest)
 		if errDataRequest != nil {
-			if len(dataRequest.Format) != 0 {
+			if len(dataRequest.Format) == 0 {
 				dataRequest.Format = "json"
 			}
 			if dataRequest.Timeout == 0 {

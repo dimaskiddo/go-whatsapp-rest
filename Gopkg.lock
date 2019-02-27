@@ -2,8 +2,7 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:9de0fde7e7d8703db5cd01509c6cd61ab9e7b298268487665a910e27d760582b"
+  digest = "1:d9babc65c93a4b4a136de2192a1be2a3e30fea2e7bc19e85caee9f381fe4b6dd"
   name = "github.com/Rhymen/go-whatsapp"
   packages = [
     ".",
@@ -15,7 +14,8 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "c9a81e9578840e5c04c49c9e6126a1682faf22fc"
+  revision = "86eab5afad40aacdbcecfa24ffaaf38d40379ff5"
+  version = "v0.0.0"
 
 [[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
@@ -34,12 +34,12 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
+  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:664d37ea261f0fc73dd17f4a1f5f46d01fbb0b0d75f6375af064824424109b7d"
@@ -180,7 +180,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "cc5685c2db1239775905f3911f0067c0fa74762f"
+  revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"

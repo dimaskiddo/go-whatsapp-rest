@@ -26,8 +26,8 @@
 
 
 [[constraint]]
-  branch = "master"
   name = "github.com/Rhymen/go-whatsapp"
+  version = "0.0.0"
 
 [[constraint]]
   name = "github.com/dgrijalva/jwt-go"

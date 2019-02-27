@@ -42,12 +42,17 @@ func WhatsAppLogin(msisdn string, timeout time.Duration, fileSession string, cha
 		errSessionRestore := WhatsAppSessionRestore(msisdn, fileSession)
 		if errSessionRestore != nil {
 			// If Restore Session Error Then
-			// Try To Remove Session File
-			errFileSessionRemove := os.Remove(fileSession)
-			if errFileSessionRemove != nil {
-				// Return Session File Remove Error
-				// Using Error Message Channel
-				chanError <- errFileSessionRemove
+			// Check If Session File Exist
+			_, errFileSessionExist := os.Stat(fileSession)
+			if errFileSessionExist == nil {
+				// If Session File Exist
+				// Try To Remove Session File
+				errFileSessionRemove := os.Remove(fileSession)
+				if errFileSessionRemove != nil {
+					// Return Session File Remove Error
+					// Using Error Message Channel
+					chanError <- errFileSessionRemove
+				}
 			}
 
 			// Create QR Code Data Channel With Type String
@@ -137,7 +142,8 @@ func WhatsAppLogout(msisdn string, fileSession string) error {
 		// Check If Session File Exist
 		_, errFileSessionExist := os.Stat(fileSession)
 		if errFileSessionExist == nil {
-			// Try To Remove Session File If Exist
+			// If Session File Exist
+			// Try To Remove Session File
 			errFileSessionRemove := os.Remove(fileSession)
 			if errFileSessionRemove != nil {
 				// Return Session File Remove Error
