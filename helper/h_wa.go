@@ -3,6 +3,7 @@ package helper
 import (
 	"encoding/gob"
 	"errors"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -287,6 +288,51 @@ func WhatsAppSendMessageText(msisdn string, fileSession string, msisdnDestinatio
 				RemoteJid: msisdnDestination + jidPrefix,
 			},
 			Text: messageText,
+		}
+
+		// Delay Before Send Message Text
+		<-time.After(messageDelay * time.Second)
+
+		// Try To Send Message Text
+		errSendMessageText := WhatsAppConnection[msisdn].Send(msgContent)
+		if errSendMessageText != nil {
+			// Return Send Message Text Error
+			return errSendMessageText
+		}
+	} else {
+		// Return Connection Not Found Error
+		return errors.New("connection not found")
+	}
+
+	// Return No Error
+	return nil
+}
+
+// WhatsAppSendMessageImage Function
+func WhatsAppSendMessageImage(msisdn string, fileSession string, msisdnDestination string, messageImageCaption string, messageImageData io.Reader, messageDelay time.Duration) error {
+	// Check If Connection Exist
+	if WhatsAppConnection[msisdn] != nil {
+		// Try To Restore Session From Session File
+		errSessionRestore := WhatsAppSessionRestore(msisdn, fileSession)
+		if errSessionRestore != nil {
+			// Return Session Restore Error
+			return errSessionRestore
+		}
+
+		// Set RemoteJID Prefix
+		jidPrefix := "@s.whatsapp.net"
+		jidDestinationCheck := strings.SplitN(msisdnDestination, "-", 2)
+		if len(jidDestinationCheck) == 2 {
+			jidPrefix = "@g.us"
+		}
+
+		// Set Message Image Content
+		msgContent := whatsApp.ImageMessage{
+			Info: whatsApp.MessageInfo{
+				RemoteJid: msisdnDestination + jidPrefix,
+			},
+			Caption: messageImageCaption,
+			Content: messageImageData,
 		}
 
 		// Delay Before Send Message Text
