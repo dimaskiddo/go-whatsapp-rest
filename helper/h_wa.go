@@ -276,7 +276,7 @@ func WhatsAppSendMessageText(msisdn string, fileSession string, msisdnDestinatio
 
 		// Set RemoteJID Prefix
 		jidPrefix := "@s.whatsapp.net"
-		jidDestinationCheck := strings.SplitN(msisdn, "-", 2)
+		jidDestinationCheck := strings.SplitN(msisdnDestination, "-", 2)
 		if len(jidDestinationCheck) == 2 {
 			jidPrefix = "@g.us"
 		}
