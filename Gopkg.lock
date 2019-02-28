@@ -2,8 +2,17 @@
 
 
 [[projects]]
-  digest = "1:d9babc65c93a4b4a136de2192a1be2a3e30fea2e7bc19e85caee9f381fe4b6dd"
-  name = "github.com/Rhymen/go-whatsapp"
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:a412ede91d9cd9480f5101f9c4a7d994778b619c2bf5f99e97a66845a1c6b8e7"
+  name = "github.com/dimaskiddo/whatsapp-go-mod"
   packages = [
     ".",
     "binary",
@@ -14,16 +23,7 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "86eab5afad40aacdbcecfa24ffaaf38d40379ff5"
-  version = "v0.0.0"
-
-[[projects]]
-  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
+  revision = "a325571a07efecbcbbee1cf7d8d786978176c7a7"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -172,15 +172,15 @@
     "hkdf",
   ]
   pruneopts = "UT"
-  revision = "7f87c0fbb88b590338857bcb720678c2583d4dea"
+  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
 
 [[projects]]
   branch = "master"
-  digest = "1:d0e9a312c4610a508569ab25e54d34600b1a96d19b1866ece104ffdf1c1b9d2c"
+  digest = "1:a2bc6cb1f4e1d0b512e1d47d392ead580006b5bdade6ffde16271759fe609b34"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
+  revision = "a34e9553db1e492c9a76e60db2296ae7e5fbb772"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -209,8 +209,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Rhymen/go-whatsapp",
     "github.com/dgrijalva/jwt-go",
+    "github.com/dimaskiddo/whatsapp-go-mod",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/skip2/go-qrcode",

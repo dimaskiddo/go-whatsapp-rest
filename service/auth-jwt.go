@@ -8,12 +8,14 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// FormatGetJWT Struct
-type FormatGetJWT struct {
-	Status  bool              `json:"status"`
-	Code    int               `json:"code"`
-	Message string            `json:"message"`
-	Data    map[string]string `json:"data"`
+// ResGetJWT Struct
+type ResGetJWT struct {
+	Status  bool   `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		Token string `json:"token"`
+	} `json:"data"`
 }
 
 // JWT Claims Data Struct

@@ -9,15 +9,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// FormatSuccess Struct
-type FormatSuccess struct {
+// ResSuccess Struct
+type ResSuccess struct {
 	Status  bool   `json:"status"`
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-// FormatError Struct
-type FormatError struct {
+// ResError Struct
+type ResError struct {
 	Status  bool   `json:"status"`
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -78,7 +78,7 @@ func ResponseWrite(w http.ResponseWriter, responseCode int, responseData interfa
 
 // ResponseSuccess Function
 func ResponseSuccess(w http.ResponseWriter, message string) {
-	var response FormatSuccess
+	var response ResSuccess
 
 	// Set Default Message
 	if len(message) == 0 {
@@ -96,7 +96,7 @@ func ResponseSuccess(w http.ResponseWriter, message string) {
 
 // ResponseCreated Function
 func ResponseCreated(w http.ResponseWriter) {
-	var response FormatSuccess
+	var response ResSuccess
 
 	// Set Response Data
 	response.Status = true
@@ -109,7 +109,7 @@ func ResponseCreated(w http.ResponseWriter) {
 
 // ResponseUpdated Function
 func ResponseUpdated(w http.ResponseWriter) {
-	var response FormatSuccess
+	var response ResSuccess
 
 	// Set Response Data
 	response.Status = true
@@ -122,7 +122,7 @@ func ResponseUpdated(w http.ResponseWriter) {
 
 // ResponseNotFound Function
 func ResponseNotFound(w http.ResponseWriter, message string) {
-	var response FormatError
+	var response ResError
 
 	// Set Default Message
 	if len(message) == 0 {
@@ -141,7 +141,7 @@ func ResponseNotFound(w http.ResponseWriter, message string) {
 
 // ResponseBadRequest Function
 func ResponseBadRequest(w http.ResponseWriter, message string) {
-	var response FormatError
+	var response ResError
 
 	// Set Default Message
 	if len(message) == 0 {
@@ -160,7 +160,7 @@ func ResponseBadRequest(w http.ResponseWriter, message string) {
 
 // ResponseInternalError Function
 func ResponseInternalError(w http.ResponseWriter, message string) {
-	var response FormatError
+	var response ResError
 
 	// Set Default Message
 	if len(message) == 0 {
@@ -179,7 +179,7 @@ func ResponseInternalError(w http.ResponseWriter, message string) {
 
 // ResponseUnauthorized Function
 func ResponseUnauthorized(w http.ResponseWriter) {
-	var response FormatError
+	var response ResError
 
 	// Set Response Data
 	response.Status = false
