@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"time"
 
 	hlp "github.com/dimaskiddo/whatsapp-go-rest/helper"
 	svc "github.com/dimaskiddo/whatsapp-go-rest/service"
 )
 
 type reqWhatsAppLogin struct {
-	Format  string        `json:"format"`
-	Timeout time.Duration `json:"timeout"`
+	Format  string `json:"format"`
+	Timeout int    `json:"timeout"`
 }
 
 type resWhatsAppLogin struct {
@@ -24,15 +23,10 @@ type resWhatsAppLogin struct {
 	} `json:"data"`
 }
 
-type reqWhatsAppLogout struct {
-	Timeout time.Duration `json:"timeout"`
-}
-
 type reqWhatsAppSendMessageText struct {
-	MSISDN  string        `json:"msisdn"`
-	Message string        `json:"message"`
-	Timeout time.Duration `json:"timeout"`
-	Delay   time.Duration `json:"delay"`
+	MSISDN  string `json:"msisdn"`
+	Message string `json:"message"`
+	Delay   int    `json:"delay"`
 }
 
 func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +47,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		reqBody.Format = "json"
 	}
 
-	conn, err := hlp.WAInit(reqBody.Timeout)
+	err = hlp.WAInit(jid, reqBody.Timeout)
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())
 		return
@@ -65,7 +59,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	errmsg := make(chan error)
 
 	go func() {
-		hlp.WAConnect(conn, reqBody.Timeout, file, qrstr, errmsg)
+		hlp.WAConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
 	}()
 
 	select {
@@ -117,33 +111,9 @@ func WhatsAppLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reqBody reqWhatsAppLogin
-	_ = json.NewDecoder(r.Body).Decode(&reqBody)
-
-	if reqBody.Timeout == 0 {
-		reqBody.Timeout = 10
-	}
-
-	conn, err := hlp.WAInit(reqBody.Timeout)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
 	file := svc.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
-	session, err := hlp.WASessionLoad(file)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
 
-	err = hlp.WASessionRestore(conn, session, file)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
-	err = hlp.WASessionLogout(conn, file)
+	err = hlp.WASessionLogout(jid, file)
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())
 		return
@@ -162,35 +132,12 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	var reqBody reqWhatsAppSendMessageText
 	_ = json.NewDecoder(r.Body).Decode(&reqBody)
 
-	if reqBody.Timeout == 0 {
-		reqBody.Timeout = 10
-	}
-
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
 		svc.ResponseBadRequest(w, "")
 		return
 	}
 
-	conn, err := hlp.WAInit(reqBody.Timeout)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
-	file := svc.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
-	session, err := hlp.WASessionLoad(file)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
-	err = hlp.WASessionRestore(conn, session, file)
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
-	err = hlp.WAMessageText(conn, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
+	err = hlp.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())
 		return
