@@ -18,7 +18,7 @@ func WAInit(jid string, timeout int) error {
 	if wac[jid] == nil {
 		var err error
 
-		wac[jid], err = whatsapp.NewConn(time.Duration(timeout) * time.Second)
+		wac[jid], err = whatsapp.Open(time.Duration(timeout) * time.Second)
 		if err != nil {
 			return err
 		}
@@ -30,7 +30,7 @@ func WAInit(jid string, timeout int) error {
 
 func WATerminate(jid string) {
 	if wac[jid] != nil {
-		wac[jid].EndConn()
+		wac[jid].Close()
 		delete(wac, jid)
 	}
 }
