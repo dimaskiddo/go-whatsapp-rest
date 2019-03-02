@@ -180,7 +180,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2f4e4bfd68413c3d31f4d60c9cba1051e779e990f3c6ba57edf3d7ed22faabb0"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
