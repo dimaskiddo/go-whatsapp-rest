@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// BasicCredentials Struct
-type BasicCredentials struct {
+// ReqGetBasic Struct
+type ReqGetBasic struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }

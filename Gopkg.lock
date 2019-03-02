@@ -140,12 +140,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:68ea4e23713989dc20b1bded5d9da2c5f9be14ff9885beef481848edd18c26cb"
+  digest = "1:1b753ec16506f5864d26a28b43703c58831255059644351bbcb019b843950900"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4a4406e478ca629068e7768fc33f3f044173c0a6"
-  version = "v1.0.0"
+  revision = "94f6ae3ed3bceceafa716478c5fbf8d29ca601a1"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
@@ -180,7 +180,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "a34e9553db1e492c9a76e60db2296ae7e5fbb772"
+  revision = "b6889370fb1098ed892bd3400d189bb6a3355813"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
