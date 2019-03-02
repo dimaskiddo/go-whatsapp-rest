@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	hlp "github.com/dimaskiddo/whatsapp-go-rest/helper"
@@ -19,7 +20,8 @@ type resWhatsAppLogin struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    struct {
-		QRCode string `json:"qrcode"`
+		QRCode  string `json:"qrcode"`
+		Timeout int    `json:"timeout"`
 	} `json:"data"`
 }
 
@@ -74,6 +76,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 			response.Code = 200
 			response.Message = "Success"
 			response.Data.QRCode = qrcode
+			response.Data.Timeout = reqBody.Timeout
 
 			svc.ResponseWrite(w, response.Code, response)
 		case "html":
@@ -85,7 +88,12 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
             <title>WhatsApp Login</title>
           </head>
           <body>
-            <img src="` + qrcode + `" />
+              <img src="` + qrcode + `" />              
+              <p>
+                <b>Scan QR Code</b><br/>
+                Timeout in ` + strconv.Itoa(reqBody.Timeout) + ` Second(s)
+              </p>
+            </center>
           </body>
         </html>
       `

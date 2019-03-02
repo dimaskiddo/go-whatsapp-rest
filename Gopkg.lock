@@ -2,19 +2,9 @@
 
 
 [[projects]]
-  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:203d905b0fe2448d2bc5baf752f7fd14d3d85ced7c6b48ecce82596c250474d7"
-  name = "github.com/dimaskiddo/whatsapp-go-mod"
+  digest = "1:c2054bc2630cd52f05ee3d723bb365659975ba269f4c7b09709a85a7ec9766d6"
+  name = "github.com/Rhymen/go-whatsapp"
   packages = [
-    ".",
     "binary",
     "binary/proto",
     "binary/token",
@@ -23,7 +13,24 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "30f458afbddc7e476aacd14d2a9dc71bd3a29704"
+  revision = "86eab5afad40aacdbcecfa24ffaaf38d40379ff5"
+  version = "v0.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:15dff193c681f8186a2dffe9bbec89edac9c70b523ed17066d81a702ec36f5fd"
+  name = "github.com/SchulteMK/go-whatsapp"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "048499ae9fa9e6e248ba7a370ea9bc4af0a04b66"
+
+[[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -107,6 +114,14 @@
   pruneopts = "UT"
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   branch = "master"
@@ -209,8 +224,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/SchulteMK/go-whatsapp",
     "github.com/dgrijalva/jwt-go",
-    "github.com/dimaskiddo/whatsapp-go-mod",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/skip2/go-qrcode",
