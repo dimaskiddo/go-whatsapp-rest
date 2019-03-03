@@ -49,8 +49,6 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		reqBody.Format = "json"
 	}
 
-	hlp.WATerminate(jid)
-
 	err = hlp.WAInit(jid, reqBody.Timeout)
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())

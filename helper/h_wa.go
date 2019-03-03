@@ -15,6 +15,10 @@ import (
 var wac = make(map[string]*whatsapp.Conn)
 
 func WAInit(jid string, timeout int) error {
+	if wac[jid] != nil {
+		WATerminate(jid)
+	}
+
 	if wac[jid] == nil {
 		var err error
 
@@ -28,9 +32,15 @@ func WAInit(jid string, timeout int) error {
 	return nil
 }
 
+func WAReset(conn *whatsapp.Conn) {
+	if conn != nil {
+		_ = conn.Disconnect()
+	}
+}
+
 func WATerminate(jid string) {
 	if wac[jid] != nil {
-		_ = wac[jid].Disconnect()
+		WAReset(wac[jid])
 		delete(wac, jid)
 	}
 }
@@ -67,8 +77,8 @@ func WASessionSave(file string, session whatsapp.Session) error {
 	return nil
 }
 
-func WASessionLogin(jid string, file string, qr chan<- string) error {
-	if wac[jid] != nil {
+func WASessionLogin(conn *whatsapp.Conn, file string, qr chan<- string) error {
+	if conn != nil {
 		_, err := os.Stat(file)
 		if err == nil {
 			err = os.Remove(file)
@@ -77,13 +87,13 @@ func WASessionLogin(jid string, file string, qr chan<- string) error {
 			}
 		}
 
-		session, err := wac[jid].Login(qr)
+		session, err := conn.Login(qr)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
 			default:
-				WATerminate(jid)
+				WAReset(conn)
 				return err
 			}
 		}
@@ -99,20 +109,20 @@ func WASessionLogin(jid string, file string, qr chan<- string) error {
 	return nil
 }
 
-func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
-	if wac[jid] != nil {
-		session, err := wac[jid].RestoreWithSession(sess)
+func WASessionRestore(conn *whatsapp.Conn, file string, sess whatsapp.Session) error {
+	if conn != nil {
+		session, err := conn.RestoreWithSession(sess)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
 			default:
-				errLogout := wac[jid].Logout()
+				errLogout := conn.Logout()
 				if errLogout != nil {
 					return errLogout
 				}
 
-				WATerminate(jid)
+				WAReset(conn)
 				return err
 			}
 		}
@@ -165,19 +175,19 @@ func WAConnect(jid string, timeout int, file string, qrstr chan<- string, errmsg
 
 				qrstr <- base64.StdEncoding.EncodeToString(png)
 			case <-time.After(time.Duration(timeout) * time.Second):
-				errmsg <- errors.New("qr code generate timeout")
+				errmsg <- errors.New("qr code generate timed out")
 			}
 		}()
 
 		session, err := WASessionLoad(file)
 		if err != nil {
-			err = WASessionLogin(jid, file, chanqr)
+			err = WASessionLogin(wac[jid], file, chanqr)
 			if err != nil {
 				errmsg <- err
 				return
 			}
 		} else {
-			err = WASessionRestore(jid, file, session)
+			err = WASessionRestore(wac[jid], file, session)
 			if err != nil {
 				err := WAInit(jid, timeout)
 				if err != nil {
@@ -185,7 +195,7 @@ func WAConnect(jid string, timeout int, file string, qrstr chan<- string, errmsg
 					return
 				}
 
-				err = WASessionLogin(jid, file, chanqr)
+				err = WASessionLogin(wac[jid], file, chanqr)
 				if err != nil {
 					errmsg <- err
 					return
