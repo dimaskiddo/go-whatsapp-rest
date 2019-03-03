@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	whatsapp "github.com/SchulteMK/go-whatsapp"
+	whatsapp "github.com/dimaskiddo/go-whatsapp"
 	qrcode "github.com/skip2/go-qrcode"
 )
 
@@ -30,14 +30,8 @@ func WAInit(jid string, timeout int) error {
 
 func WATerminate(jid string) {
 	if wac[jid] != nil {
-		wac[jid].Disconnect()
+		_ = wac[jid].Disconnect()
 		delete(wac, jid)
-	}
-}
-
-func WAReset(conn *whatsapp.Conn) {
-	if conn != nil {
-		conn.Disconnect()
 	}
 }
 
@@ -73,8 +67,8 @@ func WASessionSave(file string, session whatsapp.Session) error {
 	return nil
 }
 
-func WASessionLogin(conn *whatsapp.Conn, file string, qr chan<- string) error {
-	if conn != nil {
+func WASessionLogin(jid string, file string, qr chan<- string) error {
+	if wac[jid] != nil {
 		_, err := os.Stat(file)
 		if err == nil {
 			err = os.Remove(file)
@@ -83,14 +77,14 @@ func WASessionLogin(conn *whatsapp.Conn, file string, qr chan<- string) error {
 			}
 		}
 
-		session, err := conn.Login(qr)
+		session, err := wac[jid].Login(qr)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
 			default:
-				WAReset(conn)
-				return errors.New("session not valid")
+				WATerminate(jid)
+				return err
 			}
 		}
 
@@ -105,21 +99,21 @@ func WASessionLogin(conn *whatsapp.Conn, file string, qr chan<- string) error {
 	return nil
 }
 
-func WASessionRestore(conn *whatsapp.Conn, file string, sess whatsapp.Session) error {
-	if conn != nil {
-		session, err := conn.RestoreWithSession(sess)
+func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
+	if wac[jid] != nil {
+		session, err := wac[jid].RestoreWithSession(sess)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
 			default:
-				err := conn.Logout()
-				if err != nil {
-					return err
+				errLogout := wac[jid].Logout()
+				if errLogout != nil {
+					return errLogout
 				}
 
-				WAReset(conn)
-				return errors.New("session not valid")
+				WATerminate(jid)
+				return err
 			}
 		}
 
@@ -177,23 +171,21 @@ func WAConnect(jid string, timeout int, file string, qrstr chan<- string, errmsg
 
 		session, err := WASessionLoad(file)
 		if err != nil {
-			err = WASessionLogin(wac[jid], file, chanqr)
+			err = WASessionLogin(jid, file, chanqr)
 			if err != nil {
 				errmsg <- err
 				return
 			}
 		} else {
-			err = WASessionRestore(wac[jid], file, session)
+			err = WASessionRestore(jid, file, session)
 			if err != nil {
-				delete(wac, jid)
-
 				err := WAInit(jid, timeout)
 				if err != nil {
 					errmsg <- err
 					return
 				}
 
-				err = WASessionLogin(wac[jid], file, chanqr)
+				err = WASessionLogin(jid, file, chanqr)
 				if err != nil {
 					errmsg <- err
 					return

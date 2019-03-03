@@ -26,12 +26,12 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/SchulteMK/go-whatsapp"
-
-[[constraint]]
   name = "github.com/dgrijalva/jwt-go"
   version = "3.2.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dimaskiddo/go-whatsapp"
 
 [[constraint]]
   name = "github.com/gorilla/handlers"

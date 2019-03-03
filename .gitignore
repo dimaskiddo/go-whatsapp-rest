@@ -1,2 +1,4 @@
+build/stores/*
+build/uploads/*
 vendor
 !*.gitkeep

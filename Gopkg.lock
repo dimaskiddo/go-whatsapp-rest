@@ -2,9 +2,19 @@
 
 
 [[projects]]
-  digest = "1:c2054bc2630cd52f05ee3d723bb365659975ba269f4c7b09709a85a7ec9766d6"
-  name = "github.com/Rhymen/go-whatsapp"
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:fa72f904d35f1c4035d02be3c204498bb409121cef06e22e6393e3de0a859e10"
+  name = "github.com/dimaskiddo/go-whatsapp"
   packages = [
+    ".",
     "binary",
     "binary/proto",
     "binary/token",
@@ -13,24 +23,7 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "86eab5afad40aacdbcecfa24ffaaf38d40379ff5"
-  version = "v0.0.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:15dff193c681f8186a2dffe9bbec89edac9c70b523ed17066d81a702ec36f5fd"
-  name = "github.com/SchulteMK/go-whatsapp"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "048499ae9fa9e6e248ba7a370ea9bc4af0a04b66"
-
-[[projects]]
-  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
+  revision = "f48fe085b42b563f5423eb85fe98f369b946b5bd"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -180,7 +173,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:2f4e4bfd68413c3d31f4d60c9cba1051e779e990f3c6ba57edf3d7ed22faabb0"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -224,8 +217,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/SchulteMK/go-whatsapp",
     "github.com/dgrijalva/jwt-go",
+    "github.com/dimaskiddo/go-whatsapp",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/skip2/go-qrcode",
