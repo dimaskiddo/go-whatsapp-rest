@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	svc "github.com/dimaskiddo/whatsapp-go-rest/service"
+	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
 )
 
 // GetAuth Function to Get Authorization Token

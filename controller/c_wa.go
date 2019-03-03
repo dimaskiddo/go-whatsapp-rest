@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	hlp "github.com/dimaskiddo/whatsapp-go-rest/helper"
-	svc "github.com/dimaskiddo/whatsapp-go-rest/service"
+	hlp "github.com/dimaskiddo/go-whatsapp-rest/helper"
+	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
 )
 
 type reqWhatsAppLogin struct {
