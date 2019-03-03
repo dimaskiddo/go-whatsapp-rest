@@ -88,12 +88,12 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
             <title>WhatsApp Login</title>
           </head>
           <body>
-              <img src="` + qrcode + `" />              
-              <p>
-                <b>Scan QR Code</b><br/>
-                Timeout in ` + strconv.Itoa(reqBody.Timeout) + ` Second(s)
-              </p>
-            </center>
+            <img src="` + qrcode + `" />              
+            <p>
+              <b>QR Code Scan</b>
+              <br/>
+              Timeout in ` + strconv.Itoa(reqBody.Timeout) + ` Second(s)
+            </p>
           </body>
         </html>
       `
