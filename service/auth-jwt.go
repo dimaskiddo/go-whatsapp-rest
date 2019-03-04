@@ -35,6 +35,7 @@ func AuthJWT(nextHandlerFunc http.HandlerFunc) http.Handler {
 		// Authorization Section Length Should Be 2
 		// The First Authorization Section Should Be "Bearer"
 		if len(authHeader) != 2 || authHeader[0] != "Bearer" {
+			Log("warn", "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			ResponseUnauthorized(w)
 			return
 		}

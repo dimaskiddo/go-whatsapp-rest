@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"net/http"
-	"os"
+	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -46,18 +46,40 @@ var Router *mux.Router
 // InitRouter Function
 func initRouter() {
 	// Initialize Router
-	Router = mux.NewRouter().StrictSlash(true)
+	Router = mux.NewRouter()
 
-	// Set Router Handler with Logging & CORS Support
-	RouterHandler = handlers.LoggingHandler(os.Stdout, handlers.CORS(
+	// Set Router Handler with CORS Support
+	RouterHandler = handlers.CORS(
 		handlers.AllowedHeaders(routerCORSCfg.Headers),
 		handlers.AllowedOrigins(routerCORSCfg.Origins),
-		handlers.AllowedMethods(routerCORSCfg.Methods))(Router))
+		handlers.AllowedMethods(routerCORSCfg.Methods))(Router)
+
+	// Set Router Default Logging Handler
+	Router.Use(logsRouter)
 
 	// Set Router Default Not Found Handler
 	Router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ResponseNotFound(w, "Not Found Method "+r.Method+" at URI "+r.RequestURI)
+		Log("warn", "http-access", "not found method "+r.Method+" at URI "+r.RequestURI)
+		ResponseNotFound(w, "not found method "+r.Method+" at URI "+r.RequestURI)
 	})
+
+	// Set No Content for /favicon.ico
+	Router.HandleFunc("/favicon.ico", favIconRouter).Methods("GET")
+}
+
+// LogsRouter Function
+func logsRouter(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.RequestURI != "/favicon.ico" {
+			Log("info", "http-access", "access method "+r.Method+" at URI "+r.RequestURI)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// FavIconRouter Function
+func favIconRouter(w http.ResponseWriter, r *http.Request) {
+	ResponseNoContent(w)
 }
 
 // HealthCheck Function
@@ -120,6 +142,11 @@ func ResponseUpdated(w http.ResponseWriter) {
 	ResponseWrite(w, response.Code, response)
 }
 
+// ResponseNoContent Function
+func ResponseNoContent(w http.ResponseWriter) {
+	w.WriteHeader(204)
+}
+
 // ResponseNotFound Function
 func ResponseNotFound(w http.ResponseWriter, message string) {
 	var response ResError
@@ -154,6 +181,9 @@ func ResponseBadRequest(w http.ResponseWriter, message string) {
 	response.Message = "Bad Request"
 	response.Error = message
 
+	// Logging Error
+	Log("error", "http-access", strings.ToLower(message))
+
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)
 }
@@ -172,6 +202,9 @@ func ResponseInternalError(w http.ResponseWriter, message string) {
 	response.Code = http.StatusInternalServerError
 	response.Message = "Internal Server Error"
 	response.Error = message
+
+	// Logging Error
+	Log("error", "http-access", strings.ToLower(message))
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)

@@ -24,6 +24,7 @@ func AuthBasic(nextHandlerFunc http.HandlerFunc) http.Handler {
 		// Authorization Section Length Should Be 2
 		// The First Authorization Section Should Be "Basic"
 		if len(authHeader) != 2 || authHeader[0] != "Basic" {
+			Log("warn", "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			ResponseAuthenticate(w)
 			return
 		}
@@ -42,6 +43,7 @@ func AuthBasic(nextHandlerFunc http.HandlerFunc) http.Handler {
 		// Check Credentials Section
 		// It Should Have 2 Section, Username and Password
 		if len(authCredentials) != 2 {
+			Log("warn", "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			ResponseBadRequest(w, "")
 			return
 		}

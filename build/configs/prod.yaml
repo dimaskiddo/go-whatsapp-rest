@@ -6,7 +6,7 @@ SERVER_UPLOAD_PATH: "./uploads"
 SERVER_UPLOAD_LIMIT: 25
 
 ## Router Configuration
-ROUTER_BASE_PATH: "/api/v1/whatsapp/"
+ROUTER_BASE_PATH: "/api/v1/whatsapp"
 
 ## Cryptography Configuration
 CRYPT_PRIVATE_KEY_FILE: "./private.key"

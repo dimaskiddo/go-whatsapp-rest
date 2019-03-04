@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"io/ioutil"
-	"log"
 )
 
 // Key RSA Config Struct
@@ -29,25 +28,25 @@ func initCrypt() {
 	// Load RSA Private Key as Bytes From Private Key File
 	keyRSACfg.BytePrivate, err = ioutil.ReadFile(Config.GetString("CRYPT_PRIVATE_KEY_FILE"))
 	if err != nil {
-		log.Fatalln(err.Error())
+		Log("fatal", "init-crypt", err.Error())
 	}
 
 	// Load RSA Private Key Data By Converting RSA Private Key Bytes
 	keyRSACfg.KeyPrivate, err = BytesToPrivateKey(keyRSACfg.BytePrivate)
 	if err != nil {
-		log.Fatalln(err.Error())
+		Log("fatal", "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key as Bytes From Public Key File
 	keyRSACfg.BytePublic, err = ioutil.ReadFile(Config.GetString("CRYPT_PUBLIC_KEY_FILE"))
 	if err != nil {
-		log.Fatalln(err.Error())
+		Log("fatal", "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key Data By Converting RSA Public Key Bytes
 	keyRSACfg.KeyPublic, err = BytesToPublicKey(keyRSACfg.BytePublic)
 	if err != nil {
-		log.Fatalln(err.Error())
+		Log("fatal", "init-crypt", err.Error())
 	}
 }
 

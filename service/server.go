@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"log"
 	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -46,9 +47,9 @@ func (s *Server) Start() {
 	s.wg.Add(1)
 
 	// Start The Server
+	Log("info", "http-server", "server master started at pid "+strconv.Itoa(os.Getpid()))
 	go func() {
-		log.Println("Server - Starting")
-		log.Println("Server - Started at " + net.JoinHostPort(serverCfg.IP, serverCfg.Port))
+		Log("info", "http-server", "server worker started at pid "+strconv.Itoa(os.Getpid())+" listening on "+net.JoinHostPort(serverCfg.IP, serverCfg.Port))
 		s.srv.ListenAndServe()
 
 		s.wg.Done()
@@ -67,11 +68,9 @@ func (s *Server) Stop() {
 	// Hanlde Any Error While Stopping Server
 	if err := s.srv.Shutdown(ctx); err != nil {
 		if err = s.srv.Close(); err != nil {
-			log.Println(err.Error())
+			Log("error", "http-server", err.Error())
 			return
 		}
 	}
 	s.wg.Wait()
-	log.Println("Server - Stopping")
-	log.Println("Server - Stopped from " + net.JoinHostPort(serverCfg.IP, serverCfg.Port))
 }

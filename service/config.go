@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -63,7 +62,7 @@ func configLoadFile() {
 	// Load Configuration File
 	err := Config.ReadInConfig()
 	if err != nil {
-		log.Println(err.Error())
+		Log("warn", "config-load-file", err.Error())
 	}
 }
 
@@ -87,7 +86,7 @@ func configLoadValues() {
 	Config.SetDefault("SERVER_UPLOAD_LIMIT", 25)
 
 	// Router Base Path
-	Config.SetDefault("ROUTER_BASE_PATH", "/")
+	Config.SetDefault("ROUTER_BASE_PATH", "")
 	RouterBasePath = Config.GetString("ROUTER_BASE_PATH")
 
 	// CORS Allowed Origin Value

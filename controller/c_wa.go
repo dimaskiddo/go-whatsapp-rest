@@ -41,12 +41,12 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	var reqBody reqWhatsAppLogin
 	_ = json.NewDecoder(r.Body).Decode(&reqBody)
 
-	if reqBody.Timeout == 0 {
-		reqBody.Timeout = 10
-	}
-
 	if len(reqBody.Format) == 0 {
 		reqBody.Format = "json"
+	}
+
+	if reqBody.Timeout == 0 {
+		reqBody.Timeout = 10
 	}
 
 	err = hlp.WAInit(jid, reqBody.Timeout)

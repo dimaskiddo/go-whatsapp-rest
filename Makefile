@@ -1,6 +1,8 @@
-GO_OUTPUT ?= whatsapp-go
+GO_BUILD_OS ?= linux
+GO_BUILD_OUTPUT ?= main
+GO_SERVICE_NAME ?= go-whatsapp-rest
 GO_EXPOSE_PORT ?= 3000
-DOCKER_IMAGE_NAME ?= whatsapp-go
+DOCKER_IMAGE_NAME ?= go-whatsapp-rest
 DOCKER_IMAGE_VERSION ?= latest
 
 git-push:
@@ -29,28 +31,29 @@ go-dep-clean:
 go-build:
 	make go-clean
 	make go-dep-ensure
-	CGO_ENABLED=0 GOOS=linux go build -a -o ./build/$(GO_OUTPUT) *.go
+	CGO_ENABLED=0 GOOS=$(GO_BUILD_OS) go build -a -o ./build/$(GO_BUILD_OUTPUT) *.go
 
 go-run:
-	CONFIG_ENV="DEV" CONFIG_FILE_PATH="./build/configs" go run *.go
+	CONFIG_ENV="DEV" CONFIG_FILE_PATH="./build/configs" CONFIG_LOG_LEVEL="DEBUG" CONFIG_LOG_SERVICE="$(GO_SERVICE_NAME)" go run *.go
 
 go-clean:
-	rm -f ./build/$(GO_OUTPUT)
+	rm -f ./build/$(GO_BUILD_OUTPUT)
 
 docker-build:
-	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION) .
+	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION) --build-arg SERVICE_NAME=$(GO_SERVICE_NAME) .
 
 docker-run:
-	docker run -d -p $(GO_EXPOSE_PORT):$(GO_EXPOSE_PORT) --name $(GO_OUTPUT) --rm $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
+	docker run -d -p $(GO_EXPOSE_PORT):$(GO_EXPOSE_PORT) --name $(GO_SERVICE_NAME) --rm $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
+	make docker-logs
 
 docker-exec:
-	docker exec -it $(GO_OUTPUT) bash
+	docker exec -it $(GO_SERVICE_NAME) bash
 
 docker-stop:
-	docker stop $(GO_OUTPUT)
+	docker stop $(GO_SERVICE_NAME)
 
 docker-logs:
-	docker logs $(GO_OUTPUT)
+	docker logs $(GO_SERVICE_NAME)
 
 docker-push:
 	docker push $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
