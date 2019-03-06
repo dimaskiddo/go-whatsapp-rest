@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:00d9fec952d3d90c04419bb2dad6297eb847e3e03da058ef7623a5e997944304"
+  digest = "1:c3a7d9efcbebd4474923507c86749ee14fc4f002839639b9cdbae5365d4a3332"
   name = "github.com/dimaskiddo/go-whatsapp"
   packages = [
     ".",
@@ -23,10 +23,10 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "72bbf6a72a81aa89f218ae1223fb2d2c4df04f2f"
+  revision = "b2b1987f372fc50754c2e934fb27ab1f6bea8ee4"
 
 [[projects]]
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   pruneopts = "UT"
@@ -34,7 +34,7 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
@@ -50,7 +50,7 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
@@ -93,7 +93,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "UT"
@@ -211,7 +211,7 @@
   revision = "a98ae47d97a5abb3a3e9045da36315f9f8312970"
 
 [[projects]]
-  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
