@@ -28,13 +28,6 @@ func WAInit(jid string, timeout int) error {
 	return nil
 }
 
-func WATerminate(jid string) {
-	if wac[jid] != nil {
-		_ = wac[jid].Disconnect()
-		delete(wac, jid)
-	}
-}
-
 func WASessionLoad(file string) (whatsapp.Session, error) {
 	session := whatsapp.Session{}
 
@@ -111,7 +104,7 @@ func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
 					return errLogout
 				}
 
-				WATerminate(jid)
+				delete(wac, jid)
 				return err
 			}
 		}
@@ -129,8 +122,6 @@ func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
 
 func WASessionLogout(jid string, file string) error {
 	if wac[jid] != nil {
-		defer WATerminate(jid)
-
 		err := wac[jid].Logout()
 		if err != nil {
 			return err
@@ -143,6 +134,8 @@ func WASessionLogout(jid string, file string) error {
 				return err
 			}
 		}
+
+		delete(wac, jid)
 	} else {
 		return errors.New("connection is invalid")
 	}
