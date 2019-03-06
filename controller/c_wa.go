@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,7 +11,7 @@ import (
 )
 
 type reqWhatsAppLogin struct {
-	Format  string `json:"format"`
+	Output  string `json:"output"`
 	Timeout int    `json:"timeout"`
 }
 
@@ -25,7 +25,7 @@ type resWhatsAppLogin struct {
 	} `json:"data"`
 }
 
-type reqWhatsAppSendMessageText struct {
+type reqWhatsAppSendMessage struct {
 	MSISDN  string `json:"msisdn"`
 	Message string `json:"message"`
 	Delay   int    `json:"delay"`
@@ -38,15 +38,29 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reqBody reqWhatsAppLogin
-	_ = json.NewDecoder(r.Body).Decode(&reqBody)
-
-	if len(reqBody.Format) == 0 {
-		reqBody.Format = "json"
+	err = r.ParseForm()
+	if err != nil {
+		svc.ResponseInternalError(w, err.Error())
+		return
 	}
 
-	if reqBody.Timeout == 0 {
+	var reqBody reqWhatsAppLogin
+
+	reqBody.Output = r.FormValue("output")
+	reqTimeout := r.FormValue("timeout")
+
+	if len(reqBody.Output) == 0 {
+		reqBody.Output = "json"
+	}
+
+	if len(reqTimeout) == 0 {
 		reqBody.Timeout = 10
+	} else {
+		reqBody.Timeout, err = strconv.Atoi(reqTimeout)
+		if err != nil {
+			svc.ResponseInternalError(w, err.Error())
+			return
+		}
 	}
 
 	err = hlp.WAInit(jid, reqBody.Timeout)
@@ -68,7 +82,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	case qrcode := <-qrstr:
 		qrcode = "data:image/png;base64," + qrcode
 
-		switch strings.ToLower(reqBody.Format) {
+		switch strings.ToLower(reqBody.Output) {
 		case "json":
 			var response resWhatsAppLogin
 
@@ -137,8 +151,27 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reqBody reqWhatsAppSendMessageText
-	_ = json.NewDecoder(r.Body).Decode(&reqBody)
+	err = r.ParseForm()
+	if err != nil {
+		svc.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var reqBody reqWhatsAppSendMessage
+
+	reqBody.MSISDN = r.FormValue("msisdn")
+	reqBody.Message = r.FormValue("message")
+	reqDelay := r.FormValue("delay")
+
+	if len(reqDelay) == 0 {
+		reqBody.Delay = 0
+	} else {
+		reqBody.Delay, err = strconv.Atoi(reqDelay)
+		if err != nil {
+			svc.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
 		svc.ResponseBadRequest(w, "")
@@ -146,6 +179,58 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = hlp.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
+	if err != nil {
+		svc.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	svc.ResponseSuccess(w, "")
+}
+
+func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
+	jid, err := svc.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		svc.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	err = r.ParseMultipartForm((svc.Config.GetInt64("SERVER_UPLOAD_LIMIT") + 1) * int64(math.Pow(1024, 2)))
+	if err != nil {
+		svc.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var reqBody reqWhatsAppSendMessage
+
+	reqBody.MSISDN = r.FormValue("msisdn")
+	reqBody.Message = r.FormValue("message")
+	reqDelay := r.FormValue("delay")
+
+	if len(reqDelay) == 0 {
+		reqBody.Delay = 0
+	} else {
+		reqBody.Delay, err = strconv.Atoi(reqDelay)
+		if err != nil {
+			svc.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
+	mpFileStream, mpFileHeader, err := r.FormFile("image")
+	if err != nil {
+		svc.ResponseBadRequest(w, err.Error())
+		return
+	}
+	defer mpFileStream.Close()
+
+	mpFileType := mpFileHeader.Header.Get("Content-Type")
+
+	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
+		svc.ResponseBadRequest(w, "")
+		return
+	}
+
+	err = hlp.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.Delay)
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())
 		return

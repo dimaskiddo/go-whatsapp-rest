@@ -17,5 +17,6 @@ func initRoutes() {
 	// Set Endpoint for WhatsApp Functions
 	svc.Router.Handle(svc.RouterBasePath+"/login", svc.AuthJWT(ctl.WhatsAppLogin)).Methods("POST")
 	svc.Router.Handle(svc.RouterBasePath+"/messagetext", svc.AuthJWT(ctl.WhatsAppSendText)).Methods("POST")
+	svc.Router.Handle(svc.RouterBasePath+"/messageimage", svc.AuthJWT(ctl.WhatsAppSendImage)).Methods("POST")
 	svc.Router.Handle(svc.RouterBasePath+"/logout", svc.AuthJWT(ctl.WhatsAppLogout)).Methods("POST")
 }

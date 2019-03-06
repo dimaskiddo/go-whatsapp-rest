@@ -26,7 +26,7 @@
   revision = "72bbf6a72a81aa89f218ae1223fb2d2c4df04f2f"
 
 [[projects]]
-  digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   pruneopts = "UT"
@@ -34,7 +34,7 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
@@ -50,7 +50,7 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
@@ -93,7 +93,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "UT"
@@ -201,17 +201,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:32f8c7cc78e478c39ce1cbe83dc4d54e4c4eed86197c50ff28fb935e6a32e090"
+  digest = "1:656fbe057a9902db8ea93e55e317f5be272f8901be139b003509e338ce58d1a7"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "30e92a19ae4a77dde818b8c3d41d51e4850cba12"
+  revision = "a98ae47d97a5abb3a3e9045da36315f9f8312970"
 
 [[projects]]
-  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",

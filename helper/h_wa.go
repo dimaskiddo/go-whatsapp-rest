@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"errors"
+	"mime/multipart"
 	"os"
 	"strings"
 	"time"
@@ -22,7 +23,7 @@ func WAInit(jid string, timeout int) error {
 		if err != nil {
 			return err
 		}
-		wac[jid].SetClientName("WhatsApp Go", "WhatsApp Go")
+		wac[jid].SetClientName("Go WhatsApp REST", "Go WhatsApp")
 	}
 
 	return nil
@@ -205,6 +206,40 @@ func WAMessageText(jid string, jidDest string, msgText string, msgDelay int) err
 				RemoteJid: jidDest + jidPrefix,
 			},
 			Text: msgText,
+		}
+
+		<-time.After(time.Duration(msgDelay) * time.Second)
+
+		err := wac[jid].Send(content)
+		if err != nil {
+			switch strings.ToLower(err.Error()) {
+			case "sending message timed out":
+				return nil
+			default:
+				return err
+			}
+		}
+	} else {
+		return errors.New("connection is invalid")
+	}
+
+	return nil
+}
+
+func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgCaption string, msgDelay int) error {
+	if wac[jid] != nil {
+		jidPrefix := "@s.whatsapp.net"
+		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
+			jidPrefix = "@g.us"
+		}
+
+		content := whatsapp.ImageMessage{
+			Info: whatsapp.MessageInfo{
+				RemoteJid: jidDest + jidPrefix,
+			},
+			Content: msgImageStream,
+			Type:    msgImageType,
+			Caption: msgCaption,
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
