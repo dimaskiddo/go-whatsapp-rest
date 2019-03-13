@@ -54,6 +54,9 @@ func initRouter() {
 		handlers.AllowedOrigins(routerCORSCfg.Origins),
 		handlers.AllowedMethods(routerCORSCfg.Methods))(Router)
 
+	// Set Router Default Body Entity Size Handler
+	Router.Use(bodyEntityRouter)
+
 	// Set Router Default Logging Handler
 	Router.Use(logsRouter)
 
@@ -67,9 +70,19 @@ func initRouter() {
 	Router.HandleFunc("/favicon.ico", favIconRouter).Methods("GET")
 }
 
+// BodyEntityRouter Function
+func bodyEntityRouter(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Validate Body Entity Size
+		r.Body = http.MaxBytesReader(w, r.Body, Config.GetInt64("SERVER_UPLOAD_LIMIT"))
+		next.ServeHTTP(w, r)
+	})
+}
+
 // LogsRouter Function
 func logsRouter(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log HTTP Access if Not Acessing /favicon.ico
 		if r.RequestURI != "/favicon.ico" {
 			Log("info", "http-access", "access method "+r.Method+" at URI "+r.RequestURI)
 		}

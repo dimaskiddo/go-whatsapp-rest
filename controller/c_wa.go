@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -194,7 +193,7 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseMultipartForm((svc.Config.GetInt64("SERVER_UPLOAD_LIMIT") + 1) * int64(math.Pow(1024, 2)))
+	err = r.ParseMultipartForm(svc.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
 	if err != nil {
 		svc.ResponseInternalError(w, err.Error())
 		return

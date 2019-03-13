@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c3a7d9efcbebd4474923507c86749ee14fc4f002839639b9cdbae5365d4a3332"
+  digest = "1:e35bd0cd51d6e4a3690ed5caafe2662f320234cbafd81b519d0971170e3ced03"
   name = "github.com/dimaskiddo/go-whatsapp"
   packages = [
     ".",
@@ -23,7 +23,7 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "b2b1987f372fc50754c2e934fb27ab1f6bea8ee4"
+  revision = "652e8be6eaefb01388c5982d277da372a8b1cbfb"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -85,7 +85,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
+  digest = "1:a26f1226b5c210196d96adc4985e8d7c2ff4dd766031704ba7e76564f5720d4d"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
@@ -125,12 +125,12 @@
   version = "v0.8.1"
 
 [[projects]]
-  digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
+  digest = "1:e4c72127d910a96daf869a44f3dd563b86dbe6931a172863a0e99c5ff04b59e4"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
-  version = "v1.3.0"
+  revision = "dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -197,18 +197,18 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
+  revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
 
 [[projects]]
   branch = "master"
-  digest = "1:656fbe057a9902db8ea93e55e317f5be272f8901be139b003509e338ce58d1a7"
+  digest = "1:944736317d4f2fb1c1015ef9ca05fd9313b4e19f1128901cc678f636435fa9b0"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "a98ae47d97a5abb3a3e9045da36315f9f8312970"
+  revision = "fead79001313d15903fb4605b4a1b781532cd93e"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"

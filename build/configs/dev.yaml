@@ -3,7 +3,7 @@ SERVER_IP: "127.0.0.1"
 SERVER_PORT: "3000"
 SERVER_STORE_PATH: "./build/stores"
 SERVER_UPLOAD_PATH: "./build/uploads"
-SERVER_UPLOAD_LIMIT: 25
+SERVER_UPLOAD_LIMIT: 8
 
 ## Router Configuration
 ROUTER_BASE_PATH: "/api/v1/whatsapp"

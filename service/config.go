@@ -1,6 +1,7 @@
 package service
 
 import (
+	"math"
 	"os"
 	"strings"
 
@@ -82,8 +83,9 @@ func configLoadValues() {
 	// Server Upload Path Value
 	Config.SetDefault("SERVER_UPLOAD_PATH", "./uploads")
 
-	// Server Upload Path Value
-	Config.SetDefault("SERVER_UPLOAD_LIMIT", 25)
+	// Server Upload Limit Value
+	Config.SetDefault("SERVER_UPLOAD_LIMIT", 8)
+	Config.Set("SERVER_UPLOAD_LIMIT", (Config.GetInt64("SERVER_UPLOAD_LIMIT")+1)*int64(math.Pow(1024, 2)))
 
 	// Router Base Path
 	Config.SetDefault("ROUTER_BASE_PATH", "")

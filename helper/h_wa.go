@@ -17,13 +17,12 @@ var wac = make(map[string]*whatsapp.Conn)
 
 func WAInit(jid string, timeout int) error {
 	if wac[jid] == nil {
-		var err error
-
-		wac[jid], err = whatsapp.NewConn(time.Duration(timeout) * time.Second)
+		conn, err := whatsapp.NewConn(time.Duration(timeout) * time.Second)
 		if err != nil {
 			return err
 		}
-		wac[jid].SetClientName("Go WhatsApp REST", "Go WhatsApp")
+		conn.SetClientName("Go WhatsApp REST", "Go WhatsApp")
+		wac[jid] = conn
 	}
 
 	return nil
@@ -76,6 +75,9 @@ func WASessionLogin(jid string, file string, qr chan<- string) error {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
+			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+				delete(wac, jid)
+				return errors.New("connection is invalid")
 			default:
 				return err
 			}
@@ -99,6 +101,9 @@ func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
 			switch strings.ToLower(err.Error()) {
 			case "already logged in":
 				return nil
+			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+				delete(wac, jid)
+				return errors.New("connection is invalid")
 			default:
 				errLogout := wac[jid].Logout()
 				if errLogout != nil {
@@ -215,6 +220,9 @@ func WAMessageText(jid string, jidDest string, msgText string, msgDelay int) err
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":
 				return nil
+			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+				delete(wac, jid)
+				return errors.New("connection is invalid")
 			default:
 				return err
 			}
@@ -249,6 +257,9 @@ func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, m
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":
 				return nil
+			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+				delete(wac, jid)
+				return errors.New("connection is invalid")
 			default:
 				return err
 			}
