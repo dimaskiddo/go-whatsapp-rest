@@ -1,67 +1,75 @@
-GO_BUILD_OS ?= linux
-GO_BUILD_OUTPUT ?= main
-GO_SERVICE_NAME ?= go-whatsapp-rest
-GO_EXPOSE_PORT ?= 3000
-DOCKER_IMAGE_NAME ?= go-whatsapp-rest
-DOCKER_IMAGE_VERSION ?= latest
+BUILD_OS           := linux
+BUILD_OUTPUT       := main
+SERVICE_NAME       := go-whatsapp-rest
+SERVICE_PORT       := 3000
+IMAGE_NAME         := go-whatsapp-rest
+IMAGE_TAG          := latest
+REBASE_URL         := "github.com/dimaskiddo/go-whatsapp-rest"
+COMMIT_MSG         := "update improvement"
 
-git-push:
-	make go-dep-init
-	make go-dep-clean
-	make go-clean
-	git add .
-	git commit -am "$(COMMIT_MSG)"
-	git push origin master
+.PHONY:
 
-git-pull:
-	git pull origin master
+.SILENT:
 
-go-dep-init:
-	make go-dep-clean
+init:
+	make clean
 	rm -f Gopkg.toml Gopkg.lock
 	dep init -v
 
-go-dep-ensure:
-	make go-dep-clean
+ensure:
+	make clean
 	dep ensure -v
 
-go-dep-clean:
-	rm -rf ./vendor
+build:
+	make clean
+	make ensure
+	CGO_ENABLED=0 GOOS=$(BUILD_OS) go build -a -o ./build/$(BUILD_OUTPUT) *.go
+	echo "Build complete please check build directory."
 
-go-build:
-	make go-clean
-	make go-dep-ensure
-	CGO_ENABLED=0 GOOS=$(GO_BUILD_OS) go build -a -o ./build/$(GO_BUILD_OUTPUT) *.go
-
-go-run:
-	CONFIG_ENV="DEV" CONFIG_FILE_PATH="./build/configs" CONFIG_LOG_LEVEL="DEBUG" CONFIG_LOG_SERVICE="$(GO_SERVICE_NAME)" go run *.go
-
-go-clean:
-	rm -f ./build/$(GO_BUILD_OUTPUT)
-
-docker-build:
-	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION) --build-arg SERVICE_NAME=$(GO_SERVICE_NAME) .
-
-docker-run:
-	docker run -d -p $(GO_EXPOSE_PORT):$(GO_EXPOSE_PORT) --name $(GO_SERVICE_NAME) --rm $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
-	make docker-logs
-
-docker-exec:
-	docker exec -it $(GO_SERVICE_NAME) bash
-
-docker-stop:
-	docker stop $(GO_SERVICE_NAME)
-
-docker-logs:
-	docker logs $(GO_SERVICE_NAME)
-
-docker-push:
-	docker push $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
-
-docker-clean:
-	docker rmi -f $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
+run:
+	CONFIG_ENV="DEV" CONFIG_FILE_PATH="./build/configs" CONFIG_LOG_LEVEL="DEBUG" CONFIG_LOG_SERVICE="$(SERVICE_NAME)" go run *.go
 
 clean:
-	make go-clean
-	make go-dep-clean
-	make docker-clean
+	rm -f ./build/$(BUILD_OUTPUT)
+	rm -rf ./vendor
+
+commit:
+	make init
+	make clean
+	git add .
+	git commit -am "$(COMMIT_MSG)"
+
+rebase:
+	rm -rf .git
+	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" *.go
+	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" controller/*.go
+	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" model/*.go
+	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" service/*.go
+
+push:
+	git push origin master
+
+pull:
+	git pull origin master
+
+c-build:
+	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) --build-arg SERVICE_NAME=$(SERVICE_NAME) .
+
+c-run:
+	docker run -d -p $(SERVICE_PORT):$(SERVICE_PORT) --name $(SERVICE_NAME) --rm $(IMAGE_NAME):$(IMAGE_TAG)
+	make docker-logs
+
+c-shell:
+	docker exec -it $(SERVICE_NAME) bash
+
+c-stop:
+	docker stop $(SERVICE_NAME)
+
+c-logs:
+	docker logs $(SERVICE_NAME)
+
+c-push:
+	docker push $(IMAGE_NAME):$(IMAGE_TAG)
+
+c-clean:
+	docker rmi -f $(IMAGE_NAME):$(IMAGE_TAG)
