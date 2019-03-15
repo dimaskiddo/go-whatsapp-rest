@@ -9,39 +9,40 @@ import (
 	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
 )
 
-// Main Server Variable
-var mainServer *svc.Server
+// Server Variable
+var svr *svc.Server
 
 // Init Function
 func init() {
-	// Initialize service
+	// Initialize Service
 	svc.Initialize()
 
 	// Initialize Routes
-	initRoutes()
+	routesInit()
 
 	// Initialize Server
-	mainServer = svc.NewServer(svc.RouterHandler)
+	svr = svc.NewServer(svc.Router)
 }
 
 // Main Function
 func main() {
 	// Starting Server
-	mainServer.Start()
+	svr.Start()
 
-	// Make Channel to Catch OS Signal
-	osSignal := make(chan os.Signal, 1)
+	// Make Channel for OS Signal
+	sig := make(chan os.Signal, 1)
 
-	// Catch OS Signal from Channel
-	signal.Notify(osSignal, os.Interrupt)
-	signal.Notify(osSignal, syscall.SIGTERM)
+	// Notify Any Signal to OS Signal Channel
+	signal.Notify(sig, os.Interrupt)
+	signal.Notify(sig, syscall.SIGTERM)
 
-	// Return OS Signal as Exit Code
-	<-osSignal
+	// Return OS Signal Channel
+	// As Exit Sign
+	<-sig
 
-	// Termination Symbol Log Line
+	// Log Break Line
 	fmt.Println("")
 
 	// Stopping Server
-	defer mainServer.Stop()
+	defer svr.Stop()
 }

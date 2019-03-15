@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,29 +38,15 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
 	var reqBody reqWhatsAppLogin
-
-	reqBody.Output = r.FormValue("output")
-	reqTimeout := r.FormValue("timeout")
+	_ = json.NewDecoder(r.Body).Decode(&reqBody)
 
 	if len(reqBody.Output) == 0 {
 		reqBody.Output = "json"
 	}
 
-	if len(reqTimeout) == 0 {
+	if reqBody.Timeout == 0 {
 		reqBody.Timeout = 10
-	} else {
-		reqBody.Timeout, err = strconv.Atoi(reqTimeout)
-		if err != nil {
-			svc.ResponseInternalError(w, err.Error())
-			return
-		}
 	}
 
 	err = hlp.WAInit(jid, reqBody.Timeout)
@@ -150,27 +137,8 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
-		return
-	}
-
 	var reqBody reqWhatsAppSendMessage
-
-	reqBody.MSISDN = r.FormValue("msisdn")
-	reqBody.Message = r.FormValue("message")
-	reqDelay := r.FormValue("delay")
-
-	if len(reqDelay) == 0 {
-		reqBody.Delay = 0
-	} else {
-		reqBody.Delay, err = strconv.Atoi(reqDelay)
-		if err != nil {
-			svc.ResponseInternalError(w, err.Error())
-			return
-		}
-	}
+	_ = json.NewDecoder(r.Body).Decode(&reqBody)
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
 		svc.ResponseBadRequest(w, "")

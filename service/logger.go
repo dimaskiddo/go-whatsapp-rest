@@ -11,8 +11,8 @@ import (
 // Log Variable
 var log *logrus.Logger
 
-// InitLog Function
-func initLog() {
+// LogInit Function
+func logInit() {
 	// Initialize Log as New Logrus Logger
 	log = logrus.New()
 

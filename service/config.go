@@ -11,8 +11,8 @@ import (
 // Config Variable
 var Config *viper.Viper
 
-// InitConfig Function
-func initConfig() {
+// ConfigInit Function
+func configInit() {
 	// Set Configuration File Value
 	configEnv := strings.ToLower(os.Getenv("CONFIG_ENV"))
 	if len(configEnv) == 0 {
@@ -93,15 +93,15 @@ func configLoadValues() {
 
 	// CORS Allowed Origin Value
 	Config.SetDefault("CORS_ALLOWED_ORIGIN", "*")
-	routerCORSCfg.Origins = []string{Config.GetString("CORS_ALLOWED_ORIGIN")}
-
-	// CORS Allowed Header Value
-	Config.SetDefault("CORS_ALLOWED_HEADER", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-	routerCORSCfg.Headers = []string{Config.GetString("CORS_ALLOWED_HEADER")}
+	routerCORSCfg.Origins = Config.GetString("CORS_ALLOWED_ORIGIN")
 
 	// CORS Allowed Method Value
 	Config.SetDefault("CORS_ALLOWED_METHOD", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-	routerCORSCfg.Methods = []string{Config.GetString("CORS_ALLOWED_METHOD")}
+	routerCORSCfg.Methods = Config.GetString("CORS_ALLOWED_METHOD")
+
+	// CORS Allowed Header Value
+	Config.SetDefault("CORS_ALLOWED_HEADER", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	routerCORSCfg.Headers = Config.GetString("CORS_ALLOWED_HEADER")
 
 	// Crypt RSA Private Key File Value
 	Config.SetDefault("CRYPT_PRIVATE_KEY_FILE", "./private.key")

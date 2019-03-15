@@ -3,14 +3,14 @@ package service
 // Initialize Function in Utils
 func Initialize() {
 	// Initialize Logger
-	initLog()
+	logInit()
 
 	// Initialize Configuration
-	initConfig()
+	configInit()
 
 	// Initialize Cryptography
-	initCrypt()
+	cryptInit()
 
 	// Initialize Router
-	initRouter()
+	routerInit()
 }

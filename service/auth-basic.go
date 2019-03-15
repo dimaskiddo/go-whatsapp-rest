@@ -14,7 +14,7 @@ type ReqGetBasic struct {
 }
 
 // AuthBasic Function as Midleware for Basic Authorization
-func AuthBasic(nextHandlerFunc http.HandlerFunc) http.Handler {
+func AuthBasic(next http.Handler) http.Handler {
 	// Return Next HTTP Handler Function, If Authorization is Valid
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Parse HTTP Header Authorization
@@ -55,6 +55,6 @@ func AuthBasic(nextHandlerFunc http.HandlerFunc) http.Handler {
 		r.Body = ioutil.NopCloser(strings.NewReader(jsonCredentials))
 
 		// Call Next Handler Function With Current Request
-		nextHandlerFunc(w, r)
+		next.ServeHTTP(w, r)
 	})
 }

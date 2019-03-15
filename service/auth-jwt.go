@@ -25,7 +25,7 @@ type jwtClaimsData struct {
 }
 
 // AuthJWT Function as Midleware for JWT Authorization
-func AuthJWT(nextHandlerFunc http.HandlerFunc) http.Handler {
+func AuthJWT(next http.Handler) http.Handler {
 	// Return Next HTTP Handler Function, If Authorization is Valid
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Parse HTTP Header Authorization
@@ -65,7 +65,7 @@ func AuthJWT(nextHandlerFunc http.HandlerFunc) http.Handler {
 		r.Header.Set("X-JWT-Claims", claimsEncrypted)
 
 		// Call Next Handler Function With Current Request
-		nextHandlerFunc(w, r)
+		next.ServeHTTP(w, r)
 	})
 }
 

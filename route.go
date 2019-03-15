@@ -5,18 +5,18 @@ import (
 	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
 )
 
-// Routes Initialization Function
-func initRoutes() {
+// RoutesInit Function
+func routesInit() {
 	// Set Endpoint for Root Functions
-	svc.Router.HandleFunc(svc.RouterBasePath, ctl.GetIndex).Methods("GET")
-	svc.Router.HandleFunc(svc.RouterBasePath+"/health", ctl.GetHealth).Methods("GET")
+	svc.Router.Get(svc.RouterBasePath, ctl.GetIndex)
+	svc.Router.Get(svc.RouterBasePath+"/health", ctl.GetHealth)
 
 	// Set Endpoint for Authorization Functions
-	svc.Router.Handle(svc.RouterBasePath+"/auth", svc.AuthBasic(ctl.GetAuth)).Methods("GET", "POST")
+	svc.Router.With(svc.AuthBasic).Get(svc.RouterBasePath+"/auth", ctl.GetAuth)
 
 	// Set Endpoint for WhatsApp Functions
-	svc.Router.Handle(svc.RouterBasePath+"/login", svc.AuthJWT(ctl.WhatsAppLogin)).Methods("POST")
-	svc.Router.Handle(svc.RouterBasePath+"/messagetext", svc.AuthJWT(ctl.WhatsAppSendText)).Methods("POST")
-	svc.Router.Handle(svc.RouterBasePath+"/messageimage", svc.AuthJWT(ctl.WhatsAppSendImage)).Methods("POST")
-	svc.Router.Handle(svc.RouterBasePath+"/logout", svc.AuthJWT(ctl.WhatsAppLogout)).Methods("POST")
+	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/login", ctl.WhatsAppLogin)
+	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/messagetext", ctl.WhatsAppSendText)
+	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/messageimage", ctl.WhatsAppSendImage)
+	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/logout", ctl.WhatsAppLogout)
 }

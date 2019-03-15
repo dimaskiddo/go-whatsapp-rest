@@ -1,7 +1,6 @@
 before:
  hooks:
-  - make go-clean
-  - make go-dep-ensure
+  - make ensure
 builds:
 - env:
   - CGO_ENABLED=0
