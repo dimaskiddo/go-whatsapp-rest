@@ -42,6 +42,8 @@ commit:
 rebase:
 	rm -rf .git
 	find . -type f -iname "*.go*" -exec sed -i '' -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" {} \;	
+	git init
+	git remote add origin $(REBASE_URL)
 
 push:
 	git push origin master
