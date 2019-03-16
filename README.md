@@ -39,7 +39,7 @@ git clone -b master https://github.com/dimaskiddo/go-whatsapp-rest.git .
 ```
 make ensure
 ```
-- Until this step you already can run this code by using this command
+* Until this step you already can run this code by using this command
 ```
 make run
 ```
@@ -50,7 +50,7 @@ Currently the test is not ready yet :)
 
 ## Deployment
 
-To build this codebase to binaries for distribution purposes you can run following command:
+To build this code to binaries for distribution purposes you can run following command:
 ```
 make build
 ```
