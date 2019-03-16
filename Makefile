@@ -41,10 +41,7 @@ commit:
 
 rebase:
 	rm -rf .git
-	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" *.go
-	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" controller/*.go
-	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" model/*.go
-	sed -i -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" service/*.go
+	find . -type f -iname "*.go*" -exec sed -i '' -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" {} \;	
 
 push:
 	git push origin master
