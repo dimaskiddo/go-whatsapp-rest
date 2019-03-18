@@ -52,7 +52,7 @@ Currently the test is not ready yet :)
 
 To build this code to binaries for distribution purposes you can run following command:
 ```
-make build
+make compile
 ```
 The build result will shown in build directory
 

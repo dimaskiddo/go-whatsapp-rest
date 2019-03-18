@@ -20,8 +20,7 @@ ensure:
 	make clean
 	dep ensure -v
 
-build:
-	make clean
+compile:
 	make ensure
 	CGO_ENABLED=0 GOOS=$(BUILD_OS) go build -a -o ./build/$(BUILD_OUTPUT) *.go
 	echo "Build complete please check build directory."
