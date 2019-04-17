@@ -8,7 +8,7 @@ import (
 
 // GetIndex Function to Show API Information
 func GetIndex(w http.ResponseWriter, r *http.Request) {
-	svc.ResponseSuccess(w, "WhatsApp Go Service is running")
+	svc.ResponseSuccess(w, "Go WhatsApp Service is running")
 }
 
 // GetHealth Function to Show Health Check Status

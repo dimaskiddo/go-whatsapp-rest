@@ -76,9 +76,9 @@ func routerEntitySize(next http.Handler) http.Handler {
 func routerCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Add Header for CORS
-		r.Header.Set("Access-Control-Allow-Origin", routerCORSCfg.Origins)
-		r.Header.Set("Access-Control-Allow-Methods", routerCORSCfg.Methods)
-		r.Header.Set("Access-Control-Allow-Headers", routerCORSCfg.Headers)
+		w.Header().Set("Access-Control-Allow-Origin", routerCORSCfg.Origins)
+		w.Header().Set("Access-Control-Allow-Methods", routerCORSCfg.Methods)
+		w.Header().Set("Access-Control-Allow-Headers", routerCORSCfg.Headers)
 		next.ServeHTTP(w, r)
 	})
 }
