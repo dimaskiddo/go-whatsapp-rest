@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f1ed1b7719007ab569ad0b3e39b0d2845f1737b632c4138074349eccaf94319f"
+  digest = "1:c8212fc5ed42407ea53ae98935f366f03f6aaa0cc4862f0559f92f78531dd039"
   name = "github.com/dimaskiddo/go-whatsapp"
   packages = [
     ".",
@@ -23,7 +23,7 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "cbe3100090a47af1670f1311afca6d661ec5e849"
+  revision = "93296caba5b2e8950725a36fc9c331ed939f7104"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -85,12 +85,12 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
+  digest = "1:5a0ef768465592efca0412f7e838cdc0826712f8447e70e6ccc52eb441e9ab13"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c2353362d570a7bfa228149c62842019201cfb71"
-  version = "v1.8.0"
+  revision = "de8848e004dd33dc07a2947b3d76f618a7fc7ef1"
+  version = "v1.8.1"
 
 [[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
@@ -117,12 +117,12 @@
   version = "v0.8.1"
 
 [[projects]]
-  digest = "1:fd61cf4ae1953d55df708acb6b91492d538f49c305b364a014049914495db426"
+  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8bdbc7bcc01dcbb8ec23dc8a28e332258d25251f"
-  version = "v1.4.1"
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
 
 [[projects]]
   branch = "master"
@@ -172,12 +172,12 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:1b773526998f3dbde3a51a4a5881680c4d237d3600f570d900f97ac93c7ba0a8"
+  digest = "1:11118bd196646c6515fea3d6c43f66162833c6ae4939bfb229b9956d91c6cf17"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9e56dacc08fbbf8c9ee2dbc717553c758ce42bc9"
-  version = "v1.3.2"
+  revision = "b5bf975e5823809fb22c7644d008757f78a4259e"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -188,15 +188,15 @@
     "hkdf",
   ]
   pruneopts = "UT"
-  revision = "e1dfcc566284e143ba8f9afbb3fa563f2a0d212b"
+  revision = "f99c8df09eb5bff426315721bfa5f16a99cad32c"
 
 [[projects]]
   branch = "master"
-  digest = "1:545fb41f3b186052e964e070d76288e527cf8a52ffe95411baffb7b08c2a9409"
+  digest = "1:8f5108406bc43c7669b0d67d282e40d05c9f268615fcaf8c1f0f76965aa3f09f"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "2953c62de483abe29031e197e72d3b7061f65f91"
+  revision = "301114b31cced3624480dfb114ca1b495ec69aa5"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
