@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1bfc4a8e4260c0f1dcdf111a1547da6ad090a2cb0fbfa1716cdf7d4de2266568"
+  digest = "1:f7de16a4bf505b22b43996a08ac254eabdbd4dbefc5de30fe55a87a753e33382"
   name = "github.com/dimaskiddo/go-whatsapp"
   packages = [
     ".",
@@ -23,7 +23,7 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "323371a3f2c899621a54527e47adddc0b7c3be11"
+  revision = "019432405d461ffca30e5888b88fd6fc8052cc8f"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -196,7 +196,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
+  revision = "5ed2794edfdc1c54dfb61d619c5944285f35d444"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
