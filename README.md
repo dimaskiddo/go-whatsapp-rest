@@ -1,6 +1,6 @@
 # Go WhatsApp Implementation in REST API
 
-This repository contains example of implementation [dimaskiddo/go-whatsapp](https://github.com/dimaskiddo/go-whatsapp) package. This example is using a codebase from [dimaskiddo/codebase-go-rest-lite](https://github.com/dimaskiddo/codebase-go-rest-lite). For Postman Collection please contact me in private at [dimas.restu@student.upi.edu](mailto:dimas.restu@student.upi.edu).
+This repository contains example of implementation [Rhymen/go-whatsapp](https://github.com/Rhymen/go-whatsapp) package. This example is using a codebase from [dimaskiddo/codebase-go-rest-lite](https://github.com/dimaskiddo/codebase-go-rest-lite).
 
 ## Getting Started
 
