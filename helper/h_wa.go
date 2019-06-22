@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	whatsapp "github.com/dimaskiddo/go-whatsapp"
+	whatsapp "github.com/Rhymen/go-whatsapp"
 	qrcode "github.com/skip2/go-qrcode"
 )
 
@@ -215,7 +215,7 @@ func WAMessageText(jid string, jidDest string, msgText string, msgDelay int) err
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
 
-		err := wac[jid].Send(content)
+		_, err := wac[jid].Send(content)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":
@@ -252,7 +252,7 @@ func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, m
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
 
-		err := wac[jid].Send(content)
+		_, err := wac[jid].Send(content)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":

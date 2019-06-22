@@ -1,7 +1,7 @@
 package service
 
-// Initialize Function in Utils
-func Initialize() {
+// Initialize Function in Service
+func init() {
 	// Initialize Logger
 	logInit()
 

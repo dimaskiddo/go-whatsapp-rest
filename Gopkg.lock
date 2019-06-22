@@ -2,17 +2,9 @@
 
 
 [[projects]]
-  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
-
-[[projects]]
   branch = "master"
-  digest = "1:f7de16a4bf505b22b43996a08ac254eabdbd4dbefc5de30fe55a87a753e33382"
-  name = "github.com/dimaskiddo/go-whatsapp"
+  digest = "1:e2344084195856bc2e4ef1254cb4ae29039108d8ad1b8d71071e4dfe2f6c3b14"
+  name = "github.com/Rhymen/go-whatsapp"
   packages = [
     ".",
     "binary",
@@ -23,7 +15,15 @@
     "crypto/hkdf",
   ]
   pruneopts = "UT"
-  revision = "019432405d461ffca30e5888b88fd6fc8052cc8f"
+  revision = "c872073bc20e96d3a29f04063efc8f6b6b4b734e"
+
+[[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -188,15 +188,15 @@
     "hkdf",
   ]
   pruneopts = "UT"
-  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
+  revision = "cc06ce4a13d484c0101a9e92913248488a75786d"
 
 [[projects]]
   branch = "master"
-  digest = "1:010311506e3917b54487c35a4277e2709678a40c1587d82492c40b78b6a0a01d"
+  digest = "1:a2b03582f5805ebb5d96482a0ea550d48aba5347cc5089d89d2307ac55b98660"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "5ed2794edfdc1c54dfb61d619c5944285f35d444"
+  revision = "d432491b91382bba9c2a91776aa47c9430183a6f"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -225,8 +225,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Rhymen/go-whatsapp",
     "github.com/dgrijalva/jwt-go",
-    "github.com/dimaskiddo/go-whatsapp",
     "github.com/go-chi/chi",
     "github.com/sirupsen/logrus",
     "github.com/skip2/go-qrcode",
