@@ -1,7 +1,8 @@
-build/stores/*
-build/uploads/*
-controller
-helper
-service
+ctl
+hlp
+mdl
+share/stores/*
+share/uploads/*
 vendor
-!*.gitkeep
+**/.DS_Store
+**/.gitkeep
