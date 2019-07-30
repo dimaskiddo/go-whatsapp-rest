@@ -1,4 +1,4 @@
-package service
+package hlp
 
 import (
 	"context"
@@ -47,9 +47,9 @@ func (s *Server) Start() {
 	s.wg.Add(1)
 
 	// Start The Server
-	Log("info", "http-server", "server master started at PID "+strconv.Itoa(os.Getpid()))
+	LogPrintln(LogLevelInfo, "http-server", "server master started at PID "+strconv.Itoa(os.Getpid()))
 	go func() {
-		Log("info", "http-server", "server worker started at PID "+strconv.Itoa(os.Getpid())+" listening on "+net.JoinHostPort(serverCfg.IP, serverCfg.Port))
+		LogPrintln(LogLevelInfo, "http-server", "server worker started at PID "+strconv.Itoa(os.Getpid())+" listening on "+net.JoinHostPort(serverCfg.IP, serverCfg.Port))
 		s.srv.ListenAndServe()
 
 		s.wg.Done()
@@ -68,7 +68,7 @@ func (s *Server) Stop() {
 	// Hanlde Any Error While Stopping Server
 	if err := s.srv.Shutdown(ctx); err != nil {
 		if err = s.srv.Close(); err != nil {
-			Log("error", "http-server", err.Error())
+			LogPrintln("error", "http-server", err.Error())
 			return
 		}
 	}

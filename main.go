@@ -6,19 +6,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
 )
 
 // Server Variable
-var svr *svc.Server
+var svr *hlp.Server
 
 // Init Function
 func init() {
-	// Initialize Routes
-	routesInit()
-
 	// Initialize Server
-	svr = svc.NewServer(svc.Router)
+	svr = hlp.NewServer(router.Router)
 }
 
 // Main Function

@@ -1,9 +1,11 @@
-package service
+package router
 
 import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
 )
 
 // RouterBasePath Variable
@@ -12,10 +14,16 @@ var RouterBasePath string
 // Router Variable
 var Router *chi.Mux
 
-// routerInit Function
-func routerInit() {
+// Initialize Function in Router
+func init() {
 	// Initialize Router
 	Router = chi.NewRouter()
+	RouterBasePath = hlp.Config.GetString("ROUTER_BASE_PATH")
+
+	// Set Router CORS Configuration
+	routerCORSCfg.Origins = hlp.Config.GetString("CORS_ALLOWED_ORIGIN")
+	routerCORSCfg.Methods = hlp.Config.GetString("CORS_ALLOWED_METHOD")
+	routerCORSCfg.Headers = hlp.Config.GetString("CORS_ALLOWED_HEADER")
 
 	// Set Router Middleware
 	Router.Use(routerCORS)

@@ -1,4 +1,4 @@
-package controller
+package ctl
 
 import (
 	"encoding/json"
@@ -6,8 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	hlp "github.com/dimaskiddo/go-whatsapp-rest/helper"
-	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/auth"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/libs"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
 )
 
 type reqWhatsAppLogin struct {
@@ -32,9 +34,9 @@ type reqWhatsAppSendMessage struct {
 }
 
 func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
-	jid, err := svc.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
@@ -49,19 +51,19 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		reqBody.Timeout = 10
 	}
 
-	err = hlp.WAInit(jid, reqBody.Timeout)
+	err = libs.WAInit(jid, reqBody.Timeout)
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	file := svc.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
+	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
 	qrstr := make(chan string)
 	errmsg := make(chan error)
 
 	go func() {
-		hlp.WAConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
+		libs.WAConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
 	}()
 
 	select {
@@ -78,7 +80,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 			response.Data.QRCode = qrcode
 			response.Data.Timeout = reqBody.Timeout
 
-			svc.ResponseWrite(w, response.Code, response)
+			router.ResponseWrite(w, response.Code, response)
 		case "html":
 			var response string
 
@@ -100,40 +102,40 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 			w.Write([]byte(response))
 		default:
-			svc.ResponseBadRequest(w, "")
+			router.ResponseBadRequest(w, "")
 		}
 	case err := <-errmsg:
 		if len(err.Error()) != 0 {
-			svc.ResponseInternalError(w, err.Error())
+			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
-		svc.ResponseSuccess(w, "")
+		router.ResponseSuccess(w, "")
 	}
 }
 
 func WhatsAppLogout(w http.ResponseWriter, r *http.Request) {
-	jid, err := svc.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	file := svc.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
+	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
-	err = hlp.WASessionLogout(jid, file)
+	err = libs.WASessionLogout(jid, file)
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	svc.ResponseSuccess(w, "")
+	router.ResponseSuccess(w, "")
 }
 
 func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
-	jid, err := svc.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
@@ -141,29 +143,29 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&reqBody)
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
-		svc.ResponseBadRequest(w, "")
+		router.ResponseBadRequest(w, "")
 		return
 	}
 
-	err = hlp.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
+	err = libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	svc.ResponseSuccess(w, "")
+	router.ResponseSuccess(w, "")
 }
 
 func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
-	jid, err := svc.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	err = r.ParseMultipartForm(svc.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
+	err = r.ParseMultipartForm(hlp.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
@@ -178,14 +180,14 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		reqBody.Delay, err = strconv.Atoi(reqDelay)
 		if err != nil {
-			svc.ResponseInternalError(w, err.Error())
+			router.ResponseInternalError(w, err.Error())
 			return
 		}
 	}
 
 	mpFileStream, mpFileHeader, err := r.FormFile("image")
 	if err != nil {
-		svc.ResponseBadRequest(w, err.Error())
+		router.ResponseBadRequest(w, err.Error())
 		return
 	}
 	defer mpFileStream.Close()
@@ -193,15 +195,15 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 	mpFileType := mpFileHeader.Header.Get("Content-Type")
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
-		svc.ResponseBadRequest(w, "")
+		router.ResponseBadRequest(w, "")
 		return
 	}
 
-	err = hlp.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.Delay)
+	err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.Delay)
 	if err != nil {
-		svc.ResponseInternalError(w, err.Error())
+		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	svc.ResponseSuccess(w, "")
+	router.ResponseSuccess(w, "")
 }

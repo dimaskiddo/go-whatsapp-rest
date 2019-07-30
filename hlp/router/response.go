@@ -1,9 +1,11 @@
-package service
+package router
 
 import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
 )
 
 // ResSuccess Struct
@@ -134,7 +136,7 @@ func ResponseBadRequest(w http.ResponseWriter, message string) {
 	response.Error = message
 
 	// Logging Error
-	Log("error", "http-access", strings.ToLower(message))
+	hlp.LogPrintln(hlp.LogLevelError, "http-access", strings.ToLower(message))
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)
@@ -156,7 +158,7 @@ func ResponseInternalError(w http.ResponseWriter, message string) {
 	response.Error = message
 
 	// Logging Error
-	Log("error", "http-access", strings.ToLower(message))
+	hlp.LogPrintln(hlp.LogLevelError, "http-access", strings.ToLower(message))
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)

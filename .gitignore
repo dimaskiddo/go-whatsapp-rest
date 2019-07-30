@@ -1,6 +1,3 @@
-build/*
-build/stores/*
-build/uploads/*
+share/store/*.gob
 vendor
-!build/*.key
 !*.gitkeep

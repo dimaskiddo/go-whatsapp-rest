@@ -1,5 +1,3 @@
-BUILD_OS           := linux
-BUILD_OUTPUT       := main
 SERVICE_NAME       := go-whatsapp-rest
 SERVICE_PORT       := 3000
 IMAGE_NAME         := go-whatsapp-rest
@@ -15,20 +13,34 @@ init:
 	make clean
 	dep init -v
 
+init-dist:
+	mkdir -p dist
+	touch dist/.gitkeep
+
 ensure:
 	make clean
 	dep ensure -v
 
-compile:
+release:
 	make ensure
-	CGO_ENABLED=0 GOOS=$(BUILD_OS) go build -a -o ./build/$(BUILD_OUTPUT) *.go
-	echo "Build complete please check build directory."
+	goreleaser --snapshot --skip-publish --rm-dist
+	make init-dist
+	echo "Release complete please check dist directory."
+
+publish:
+	GITHUB_TOKEN=$(GITHUB_TOKEN) goreleaser --rm-dist
+	make clean-dist
+	echo "Publish complete please check your repository releases."
 
 run:
-	CONFIG_ENV="DEV" CONFIG_FILE_PATH="./build/configs" CONFIG_LOG_LEVEL="DEBUG" CONFIG_LOG_SERVICE="$(SERVICE_NAME)" go run *.go
+	go run *.go
+
+clean-dist:
+	rm -rf ./dist/*
+	make init-dist
 
 clean:
-	rm -f ./build/$(BUILD_OUTPUT)
+	make clean-dist
 	rm -rf ./vendor
 
 commit:
@@ -39,7 +51,7 @@ commit:
 
 rebase:
 	rm -rf .git
-	find . -type f -iname "*.go*" -exec sed -i '' -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" {} \;	
+	find . -type f -iname "*.go*" -exec sed -i '' -e "s%github.com/dimaskiddo/go-whatsapp-rest%$(REBASE_URL)%g" {} \;
 	git init
 	git remote add origin https://$(REBASE_URL).git
 
@@ -54,7 +66,7 @@ c-build:
 
 c-run:
 	docker run -d -p $(SERVICE_PORT):$(SERVICE_PORT) --name $(SERVICE_NAME) --rm $(IMAGE_NAME):$(IMAGE_TAG)
-	make docker-logs
+	make c-logs
 
 c-shell:
 	docker exec -it $(SERVICE_NAME) bash

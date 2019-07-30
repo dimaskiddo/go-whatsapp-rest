@@ -1,22 +1,23 @@
 package main
 
 import (
-	ctl "github.com/dimaskiddo/go-whatsapp-rest/controller"
-	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
+	"github.com/dimaskiddo/go-whatsapp-rest/ctl"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/auth"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
 )
 
-// RoutesInit Function
-func routesInit() {
+// Initialize Function in Main Route
+func init() {
 	// Set Endpoint for Root Functions
-	svc.Router.Get(svc.RouterBasePath, ctl.GetIndex)
-	svc.Router.Get(svc.RouterBasePath+"/health", ctl.GetHealth)
+	router.Router.Get(router.RouterBasePath, ctl.GetIndex)
+	router.Router.Get(router.RouterBasePath+"/health", ctl.GetHealth)
 
 	// Set Endpoint for Authorization Functions
-	svc.Router.With(svc.AuthBasic).Get(svc.RouterBasePath+"/auth", ctl.GetAuth)
+	router.Router.With(auth.Basic).Get(router.RouterBasePath+"/auth", ctl.GetAuth)
 
 	// Set Endpoint for WhatsApp Functions
-	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/login", ctl.WhatsAppLogin)
-	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/messagetext", ctl.WhatsAppSendText)
-	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/messageimage", ctl.WhatsAppSendImage)
-	svc.Router.With(svc.AuthJWT).Post(svc.RouterBasePath+"/logout", ctl.WhatsAppLogout)
+	router.Router.With(auth.JWT).Post("/whatsapp-login", ctl.WhatsAppLogin)
+	router.Router.With(auth.JWT).Post("/whatsapp-send-text", ctl.WhatsAppSendText)
+	router.Router.With(auth.JWT).Post("/whatsapp-send-image", ctl.WhatsAppSendImage)
+	router.Router.With(auth.JWT).Post("/whatsapp-logout", ctl.WhatsAppLogout)
 }

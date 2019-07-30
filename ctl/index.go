@@ -1,17 +1,17 @@
-package controller
+package ctl
 
 import (
 	"net/http"
 
-	svc "github.com/dimaskiddo/go-whatsapp-rest/service"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
 )
 
 // GetIndex Function to Show API Information
 func GetIndex(w http.ResponseWriter, r *http.Request) {
-	svc.ResponseSuccess(w, "Go WhatsApp Service is running")
+	router.ResponseSuccess(w, "Go WhatsApp REST is running")
 }
 
 // GetHealth Function to Show Health Check Status
 func GetHealth(w http.ResponseWriter, r *http.Request) {
-	svc.HealthCheck(w)
+	router.HealthCheck(w)
 }

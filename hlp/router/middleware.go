@@ -1,8 +1,10 @@
-package service
+package router
 
 import (
 	"net/http"
 	"strings"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
 )
 
 // Router CORS Configuration Struct
@@ -48,7 +50,7 @@ func routerLogs(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log HTTP Access if Not Acessing /favicon.ico
 		if r.RequestURI != "/favicon.ico" {
-			Log("info", "http-access", "access method "+r.Method+" at URI "+r.RequestURI)
+			hlp.LogPrintln(hlp.LogLevelInfo, "http-access", "access method "+r.Method+" at URI "+r.RequestURI)
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -58,7 +60,7 @@ func routerLogs(next http.Handler) http.Handler {
 func routerEntitySize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Validate Entity Size
-		r.Body = http.MaxBytesReader(w, r.Body, Config.GetInt64("SERVER_UPLOAD_LIMIT"))
+		r.Body = http.MaxBytesReader(w, r.Body, hlp.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
 		next.ServeHTTP(w, r)
 	})
 }

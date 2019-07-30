@@ -1,10 +1,13 @@
-package service
+package auth
 
 import (
 	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
 )
 
 // ReqGetBasic Struct
@@ -13,8 +16,8 @@ type ReqGetBasic struct {
 	Password string `json:"password"`
 }
 
-// AuthBasic Function as Midleware for Basic Authorization
-func AuthBasic(next http.Handler) http.Handler {
+// Basic Function as Midleware for Basic Authorization
+func Basic(next http.Handler) http.Handler {
 	// Return Next HTTP Handler Function, If Authorization is Valid
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Parse HTTP Header Authorization
@@ -24,8 +27,8 @@ func AuthBasic(next http.Handler) http.Handler {
 		// Authorization Section Length Should Be 2
 		// The First Authorization Section Should Be "Basic"
 		if len(authHeader) != 2 || authHeader[0] != "Basic" {
-			Log("warn", "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
-			ResponseAuthenticate(w)
+			hlp.LogPrintln(hlp.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
+			router.ResponseAuthenticate(w)
 			return
 		}
 
@@ -33,7 +36,7 @@ func AuthBasic(next http.Handler) http.Handler {
 		// But We Should Decode it First From Base64 Encoding
 		authPayload, err := base64.StdEncoding.DecodeString(authHeader[1])
 		if err != nil {
-			ResponseInternalError(w, err.Error())
+			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
@@ -43,8 +46,8 @@ func AuthBasic(next http.Handler) http.Handler {
 		// Check Credentials Section
 		// It Should Have 2 Section, Username and Password
 		if len(authCredentials) != 2 {
-			Log("warn", "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
-			ResponseBadRequest(w, "")
+			hlp.LogPrintln(hlp.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
+			router.ResponseBadRequest(w, "")
 			return
 		}
 

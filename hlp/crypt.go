@@ -1,4 +1,4 @@
-package service
+package hlp
 
 import (
 	"crypto/rand"
@@ -18,35 +18,35 @@ type keyRSAConfig struct {
 	KeyPublic   *rsa.PublicKey
 }
 
-// Key RSA Config Variable
-var keyRSACfg keyRSAConfig
+// KeyRSACfg Variable
+var KeyRSACfg keyRSAConfig
 
-// CruptInit Function
-func cryptInit() {
+// Initialize Function in Helper Cryptography
+func init() {
 	var err error
 
 	// Load RSA Private Key as Bytes From Private Key File
-	keyRSACfg.BytePrivate, err = ioutil.ReadFile(Config.GetString("CRYPT_PRIVATE_KEY_FILE"))
+	KeyRSACfg.BytePrivate, err = ioutil.ReadFile(Config.GetString("CRYPT_PRIVATE_KEY_FILE"))
 	if err != nil {
-		Log("fatal", "init-crypt", err.Error())
+		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Private Key Data By Converting RSA Private Key Bytes
-	keyRSACfg.KeyPrivate, err = BytesToPrivateKey(keyRSACfg.BytePrivate)
+	KeyRSACfg.KeyPrivate, err = BytesToPrivateKey(KeyRSACfg.BytePrivate)
 	if err != nil {
-		Log("fatal", "init-crypt", err.Error())
+		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key as Bytes From Public Key File
-	keyRSACfg.BytePublic, err = ioutil.ReadFile(Config.GetString("CRYPT_PUBLIC_KEY_FILE"))
+	KeyRSACfg.BytePublic, err = ioutil.ReadFile(Config.GetString("CRYPT_PUBLIC_KEY_FILE"))
 	if err != nil {
-		Log("fatal", "init-crypt", err.Error())
+		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key Data By Converting RSA Public Key Bytes
-	keyRSACfg.KeyPublic, err = BytesToPublicKey(keyRSACfg.BytePublic)
+	KeyRSACfg.KeyPublic, err = BytesToPublicKey(KeyRSACfg.BytePublic)
 	if err != nil {
-		Log("fatal", "init-crypt", err.Error())
+		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
 	}
 }
 
@@ -112,7 +112,7 @@ func EncryptWithRSA(data string) (string, error) {
 	hash := sha512.New()
 
 	// Encrypt Plain Text to Chiper Text Using RSA Encryption OAEP
-	chiperText, err := rsa.EncryptOAEP(hash, rand.Reader, keyRSACfg.KeyPublic, []byte(data), nil)
+	chiperText, err := rsa.EncryptOAEP(hash, rand.Reader, KeyRSACfg.KeyPublic, []byte(data), nil)
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +136,7 @@ func DecryptWithRSA(data string) (string, error) {
 	}
 
 	// Decrypt Chiper Text to Plain Text Using RSA Encryption OAEP
-	plainText, err := rsa.DecryptOAEP(hash, rand.Reader, keyRSACfg.KeyPrivate, []byte(decompressText), nil)
+	plainText, err := rsa.DecryptOAEP(hash, rand.Reader, KeyRSACfg.KeyPrivate, []byte(decompressText), nil)
 	if err != nil {
 		return "", err
 	}

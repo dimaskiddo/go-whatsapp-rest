@@ -1,4 +1,4 @@
-package service
+package hlp
 
 import (
 	"os"
@@ -11,8 +11,22 @@ import (
 // Log Variable
 var log *logrus.Logger
 
-// LogInit Function
-func logInit() {
+// Log Level Data Type
+type logLevel string
+
+// Log Level Data Type Constant
+const (
+	LogLevelPanic logLevel = "panic"
+	LogLevelFatal logLevel = "fatal"
+	LogLevelError logLevel = "error"
+	LogLevelWarn  logLevel = "warn"
+	LogLevelDebug logLevel = "debug"
+	LogLevelTrace logLevel = "trace"
+	LogLevelInfo  logLevel = "info"
+)
+
+// Initialize Function in Helper Logging
+func init() {
 	// Initialize Log as New Logrus Logger
 	log = logrus.New()
 
@@ -26,7 +40,7 @@ func logInit() {
 	log.SetOutput(os.Stdout)
 
 	// Set Log Level
-	switch strings.ToLower(os.Getenv("CONFIG_LOG_LEVEL")) {
+	switch strings.ToLower(Config.GetString("SERVER_LOG_LEVEL")) {
 	case "panic":
 		log.SetLevel(logrus.PanicLevel)
 	case "fatal":
@@ -44,50 +58,50 @@ func logInit() {
 	}
 }
 
-// Log Function
-func Log(level string, label string, message string) {
+// LogPrintln Function
+func LogPrintln(level logLevel, label string, message interface{}) {
 	// Make Sure Log Is Not Empty Variable
 	if log != nil {
 		// Set Service Name Log Information
-		service := strings.ToLower(os.Getenv("CONFIG_LOG_SERVICE"))
+		service := strings.ToLower(Config.GetString("SERVER_NAME"))
 
 		// Print Log Based On Log Level Type
-		switch strings.ToLower(level) {
+		switch level {
 		case "panic":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Panic(message)
+			}).Panicln(message)
 		case "fatal":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Fatal(message)
+			}).Fatalln(message)
 		case "error":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Error(message)
+			}).Errorln(message)
 		case "warn":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Warn(message)
+			}).Warnln(message)
 		case "debug":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Debug(message)
-		case "tarce":
+		case "trace":
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Trace(message)
+			}).Traceln(message)
 		default:
 			log.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
-			}).Info(message)
+			}).Infoln(message)
 		}
 	}
 }
