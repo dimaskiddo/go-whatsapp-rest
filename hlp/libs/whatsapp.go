@@ -6,14 +6,30 @@ import (
 	"errors"
 	"mime/multipart"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
 	qrcode "github.com/skip2/go-qrcode"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
 )
 
 var wac = make(map[string]*whatsapp.Conn)
+
+func WASyncVersion(conn *whatsapp.Conn) (string, error) {
+	versionServer, err := whatsapp.CheckCurrentServerVersion()
+	if err != nil {
+		return "", err
+	}
+
+	conn.SetClientVersion(versionServer[0], versionServer[1], versionServer[2])
+	versionClient := conn.GetClientVersion()
+
+	return "whatsapp version " + strconv.Itoa(versionClient[0]) +
+		"." + strconv.Itoa(versionClient[1]) + "." + strconv.Itoa(versionClient[2]), nil
+}
 
 func WAInit(jid string, timeout int) error {
 	if wac[jid] == nil {
@@ -22,7 +38,27 @@ func WAInit(jid string, timeout int) error {
 			return err
 		}
 		conn.SetClientName("Go WhatsApp REST", "Go WhatsApp")
+
+		info, err := WASyncVersion(conn)
+		if err != nil {
+			return err
+		}
+		hlp.LogPrintln(hlp.LogLevelInfo, "whatsapp", info)
+
 		wac[jid] = conn
+	}
+
+	return nil
+}
+
+func WASessionPing(conn *whatsapp.Conn) error {
+	ok, err := conn.AdminTest()
+	if !ok {
+		if err != nil {
+			return err
+		} else {
+			return errors.New("something when wrong while trying to ping, please check phone connectivity")
+		}
 	}
 
 	return nil
@@ -87,6 +123,11 @@ func WASessionLogin(jid string, file string, qr chan<- string) error {
 		if err != nil {
 			return err
 		}
+
+		err = WASessionPing(wac[jid])
+		if err != nil {
+			return err
+		}
 	} else {
 		return errors.New("connection is invalid")
 	}
@@ -116,6 +157,11 @@ func WASessionRestore(jid string, file string, sess whatsapp.Session) error {
 		}
 
 		err = WASessionSave(file, session)
+		if err != nil {
+			return err
+		}
+
+		err = WASessionPing(wac[jid])
 		if err != nil {
 			return err
 		}
