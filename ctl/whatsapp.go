@@ -51,19 +51,13 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		reqBody.Timeout = 10
 	}
 
-	err = libs.WAInit(jid, reqBody.Timeout)
-	if err != nil {
-		router.ResponseInternalError(w, err.Error())
-		return
-	}
-
 	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
 	qrstr := make(chan string)
 	errmsg := make(chan error)
 
 	go func() {
-		libs.WAConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
+		libs.WASessionConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
 	}()
 
 	select {
