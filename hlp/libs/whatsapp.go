@@ -31,6 +31,19 @@ func WASyncVersion(conn *whatsapp.Conn) (string, error) {
 	return fmt.Sprintf("whatsapp version %v.%v.%v", versionClient[0], versionClient[1], versionClient[2]), nil
 }
 
+func WATestPing(conn *whatsapp.Conn) error {
+	ok, err := conn.AdminTest()
+	if !ok {
+		if err != nil {
+			return err
+		} else {
+			return errors.New("something when wrong while trying to ping, please check phone connectivity")
+		}
+	}
+
+	return nil
+}
+
 func WAGenerateQR(timeout int, chanqr chan string, qrstr chan<- string) {
 	select {
 	case tmp := <-chanqr:
@@ -54,19 +67,6 @@ func WASessionInit(jid string, timeout int) error {
 		hlp.LogPrintln(hlp.LogLevelInfo, "whatsapp", info)
 
 		wac[jid] = conn
-	}
-
-	return nil
-}
-
-func WASessionPing(conn *whatsapp.Conn) error {
-	ok, err := conn.AdminTest()
-	if !ok {
-		if err != nil {
-			return err
-		} else {
-			return errors.New("something when wrong while trying to ping, please check phone connectivity")
-		}
 	}
 
 	return nil
@@ -143,12 +143,18 @@ func WASessionConnect(jid string, timeout int, file string, qrstr chan<- string,
 		}
 	}
 
+	err = WATestPing(wac[jid])
+	if err != nil {
+		errmsg <- err
+		return
+	}
+
 	errmsg <- errors.New("")
 	return
 }
 
 func WASessionLogin(jid string, timeout int, file string, qrstr chan<- string) error {
-	if wac[jid] != (*whatsapp.Conn)(nil) {
+	if wac[jid] != nil {
 		if WASessionExist(file) {
 			err := os.Remove(file)
 			if err != nil {
@@ -183,16 +189,11 @@ func WASessionLogin(jid string, timeout int, file string, qrstr chan<- string) e
 		return err
 	}
 
-	err = WASessionPing(wac[jid])
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func WASessionRestore(jid string, timeout int, file string, sess whatsapp.Session) error {
-	if wac[jid] != (*whatsapp.Conn)(nil) {
+	if wac[jid] != nil {
 		if WASessionExist(file) {
 			err := os.Remove(file)
 			if err != nil {
@@ -227,16 +228,11 @@ func WASessionRestore(jid string, timeout int, file string, sess whatsapp.Sessio
 		return err
 	}
 
-	err = WASessionPing(wac[jid])
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func WASessionLogout(jid string, file string) error {
-	if wac[jid] != (*whatsapp.Conn)(nil) {
+	if wac[jid] != nil {
 		err := wac[jid].Logout()
 		if err != nil {
 			return err
@@ -260,34 +256,26 @@ func WASessionLogout(jid string, file string) error {
 func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != (*whatsapp.Conn)(nil) {
+	if wac[jid] != nil {
 		jidPrefix := "@s.whatsapp.net"
 		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
 			jidPrefix = "@g.us"
 		}
 
-		content := whatsapp.TextMessage{}
+		content := whatsapp.TextMessage{
+			Info: whatsapp.MessageInfo{
+				RemoteJid: jidDest + jidPrefix,
+			},
+			Text: msgText,
+		}
 
 		if len(msgQuotedID) != 0 {
-			quoted := &waproto.Message{
+			pntQuotedMsg := &waproto.Message{
 				Conversation: &msgQuoted,
 			}
 
-			content = whatsapp.TextMessage{
-				Info: whatsapp.MessageInfo{
-					RemoteJid:       jidDest + jidPrefix,
-					QuotedMessageID: msgQuotedID,
-					QuotedMessage:   *quoted,
-				},
-				Text: msgText,
-			}
-		} else {
-			content = whatsapp.TextMessage{
-				Info: whatsapp.MessageInfo{
-					RemoteJid: jidDest + jidPrefix,
-				},
-				Text: msgText,
-			}
+			content.Info.QuotedMessageID = msgQuotedID
+			content.Info.QuotedMessage = *pntQuotedMsg
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
@@ -314,38 +302,28 @@ func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID strin
 func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgCaption string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != (*whatsapp.Conn)(nil) {
+	if wac[jid] != nil {
 		jidPrefix := "@s.whatsapp.net"
 		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
 			jidPrefix = "@g.us"
 		}
 
-		content := whatsapp.ImageMessage{}
+		content := whatsapp.ImageMessage{
+			Info: whatsapp.MessageInfo{
+				RemoteJid: jidDest + jidPrefix,
+			},
+			Content: msgImageStream,
+			Type:    msgImageType,
+			Caption: msgCaption,
+		}
 
 		if len(msgQuotedID) != 0 {
-			quoted := &waproto.Message{
+			pntQuotedMsg := &waproto.Message{
 				Conversation: &msgQuoted,
 			}
 
-			content = whatsapp.ImageMessage{
-				Info: whatsapp.MessageInfo{
-					RemoteJid:       jidDest + jidPrefix,
-					QuotedMessageID: msgQuotedID,
-					QuotedMessage:   *quoted,
-				},
-				Content: msgImageStream,
-				Type:    msgImageType,
-				Caption: msgCaption,
-			}
-		} else {
-			content = whatsapp.ImageMessage{
-				Info: whatsapp.MessageInfo{
-					RemoteJid: jidDest + jidPrefix,
-				},
-				Content: msgImageStream,
-				Type:    msgImageType,
-				Caption: msgCaption,
-			}
+			content.Info.QuotedMessageID = msgQuotedID
+			content.Info.QuotedMessage = *pntQuotedMsg
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
