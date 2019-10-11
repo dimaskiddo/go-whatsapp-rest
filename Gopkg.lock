@@ -188,15 +188,15 @@
     "hkdf",
   ]
   pruneopts = "UT"
-  revision = "34f69633bfdcf9db92f698f8487115767eebef81"
+  revision = "af544f31c8ac5794d2134b792e9eb714d9d8f9ce"
 
 [[projects]]
   branch = "master"
-  digest = "1:b019c2a549aa9885670e4eeb3fd88b7884c3b3be4b2a79afa75167009292bb35"
+  digest = "1:7c927f17d868be652a4cfe7de23e4292dea5b14d974a1d536e3b7cb7e79fd695"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "ef33b2fb2c414dca4bfcf6ca59cbd1d9ad00703d"
+  revision = "b09406accb4736d857a32bf9444cd7edae2ffa79"
 
 [[projects]]
   digest = "1:1093f2eb4b344996604f7d8b29a16c5b22ab9e1b25652140d3fede39f640d5cd"
@@ -226,6 +226,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Rhymen/go-whatsapp",
+    "github.com/Rhymen/go-whatsapp/binary/proto",
     "github.com/dgrijalva/jwt-go",
     "github.com/go-chi/chi",
     "github.com/sirupsen/logrus",

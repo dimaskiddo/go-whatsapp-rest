@@ -28,9 +28,15 @@ type resWhatsAppLogin struct {
 }
 
 type reqWhatsAppSendMessage struct {
-	MSISDN  string `json:"msisdn"`
-	Message string `json:"message"`
-	Delay   int    `json:"delay"`
+	MSISDN        string `json:"msisdn"`
+	Message       string `json:"message"`
+	QuotedID      string `json:"quoteid"`
+	QuotedMessage string `json:"quotedmsg"`
+	Delay         int    `json:"delay"`
+}
+
+type resWhatsAppSendMessage struct {
+	MessageID string `json:"msgid"`
 }
 
 func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +54,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if reqBody.Timeout == 0 {
-		reqBody.Timeout = 10
+		reqBody.Timeout = 5
 	}
 
 	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
@@ -141,13 +147,16 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.Delay)
+	id, err := libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	router.ResponseSuccess(w, "")
+	var resBody resWhatsAppSendMessage
+	resBody.MessageID = id
+
+	router.ResponseSuccessWithData(w, "", resBody)
 }
 
 func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
@@ -167,6 +176,8 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 
 	reqBody.MSISDN = r.FormValue("msisdn")
 	reqBody.Message = r.FormValue("message")
+	reqBody.QuotedID = r.FormValue("qoutedid")
+	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
 	reqDelay := r.FormValue("delay")
 
 	if len(reqDelay) == 0 {
@@ -193,11 +204,14 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.Delay)
+	id, err := libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	router.ResponseSuccess(w, "")
+	var resBody resWhatsAppSendMessage
+	resBody.MessageID = id
+
+	router.ResponseSuccessWithData(w, "", resBody)
 }

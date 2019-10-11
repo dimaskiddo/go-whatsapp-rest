@@ -15,6 +15,14 @@ type ResSuccess struct {
 	Message string `json:"message"`
 }
 
+// ResSuccessWithData Struct
+type ResSuccessWithData struct {
+	Status  bool        `json:"status"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
 // ResError Struct
 type ResError struct {
 	Status  bool   `json:"status"`
@@ -46,6 +54,25 @@ func ResponseSuccess(w http.ResponseWriter, message string) {
 	response.Status = true
 	response.Code = http.StatusOK
 	response.Message = message
+
+	// Set Response Data to HTTP
+	ResponseWrite(w, response.Code, response)
+}
+
+// ResponseSuccessWithData Function
+func ResponseSuccessWithData(w http.ResponseWriter, message string, data interface{}) {
+	var response ResSuccessWithData
+
+	// Set Default Message
+	if len(message) == 0 {
+		message = "Success"
+	}
+
+	// Set Response Data
+	response.Status = true
+	response.Code = http.StatusOK
+	response.Message = message
+	response.Data = data
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)

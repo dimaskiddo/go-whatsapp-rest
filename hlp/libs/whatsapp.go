@@ -11,6 +11,7 @@ import (
 	"time"
 
 	whatsapp "github.com/Rhymen/go-whatsapp"
+	waproto "github.com/Rhymen/go-whatsapp/binary/proto"
 	qrcode "github.com/skip2/go-qrcode"
 
 	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
@@ -28,6 +29,14 @@ func WASyncVersion(conn *whatsapp.Conn) (string, error) {
 	versionClient := conn.GetClientVersion()
 
 	return fmt.Sprintf("whatsapp version %v.%v.%v", versionClient[0], versionClient[1], versionClient[2]), nil
+}
+
+func WAGenerateQR(timeout int, chanqr chan string, qrstr chan<- string) {
+	select {
+	case tmp := <-chanqr:
+		png, _ := qrcode.Encode(tmp, qrcode.Medium, 256)
+		qrstr <- base64.StdEncoding.EncodeToString(png)
+	}
 }
 
 func WASessionInit(jid string, timeout int) error {
@@ -106,23 +115,13 @@ func WASessionExist(file string) bool {
 
 func WASessionConnect(jid string, timeout int, file string, qrstr chan<- string, errmsg chan<- error) {
 	chanqr := make(chan string)
-	go func() {
-		select {
-		case tmp := <-chanqr:
-			png, errPNG := qrcode.Encode(tmp, qrcode.Medium, 256)
-			if errPNG != nil {
-				errmsg <- errPNG
-				return
-			}
-
-			qrstr <- base64.StdEncoding.EncodeToString(png)
-		case <-time.After(time.Duration(timeout) * time.Second):
-			errmsg <- errors.New("qr code generate timed out")
-		}
-	}()
 
 	session, err := WASessionLoad(file)
 	if err != nil {
+		go func() {
+			WAGenerateQR(timeout, chanqr, qrstr)
+		}()
+
 		err = WASessionLogin(jid, timeout, file, chanqr)
 		if err != nil {
 			errmsg <- err
@@ -133,6 +132,10 @@ func WASessionConnect(jid string, timeout int, file string, qrstr chan<- string,
 
 	err = WASessionRestore(jid, timeout, file, session)
 	if err != nil {
+		go func() {
+			WAGenerateQR(timeout, chanqr, qrstr)
+		}()
+
 		err = WASessionLogin(jid, timeout, file, chanqr)
 		if err != nil {
 			errmsg <- err
@@ -254,74 +257,114 @@ func WASessionLogout(jid string, file string) error {
 	return nil
 }
 
-func WAMessageText(jid string, jidDest string, msgText string, msgDelay int) error {
+func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+	var id string
+
 	if wac[jid] != (*whatsapp.Conn)(nil) {
 		jidPrefix := "@s.whatsapp.net"
 		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
 			jidPrefix = "@g.us"
 		}
 
-		content := whatsapp.TextMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Text: msgText,
+		content := whatsapp.TextMessage{}
+
+		if len(msgQuotedID) != 0 {
+			quoted := &waproto.Message{
+				Conversation: &msgQuoted,
+			}
+
+			content = whatsapp.TextMessage{
+				Info: whatsapp.MessageInfo{
+					RemoteJid:       jidDest + jidPrefix,
+					QuotedMessageID: msgQuotedID,
+					QuotedMessage:   *quoted,
+				},
+				Text: msgText,
+			}
+		} else {
+			content = whatsapp.TextMessage{
+				Info: whatsapp.MessageInfo{
+					RemoteJid: jidDest + jidPrefix,
+				},
+				Text: msgText,
+			}
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
 
-		_, err := wac[jid].Send(content)
+		id, err := wac[jid].Send(content)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":
-				return nil
+				return id, nil
 			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
 				delete(wac, jid)
-				return errors.New("connection is invalid")
+				return "", errors.New("connection is invalid")
 			default:
-				return err
+				return "", err
 			}
 		}
 	} else {
-		return errors.New("connection is invalid")
+		return "", errors.New("connection is invalid")
 	}
 
-	return nil
+	return id, nil
 }
 
-func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgCaption string, msgDelay int) error {
+func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgCaption string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+	var id string
+
 	if wac[jid] != (*whatsapp.Conn)(nil) {
 		jidPrefix := "@s.whatsapp.net"
 		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
 			jidPrefix = "@g.us"
 		}
 
-		content := whatsapp.ImageMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Content: msgImageStream,
-			Type:    msgImageType,
-			Caption: msgCaption,
+		content := whatsapp.ImageMessage{}
+
+		if len(msgQuotedID) != 0 {
+			quoted := &waproto.Message{
+				Conversation: &msgQuoted,
+			}
+
+			content = whatsapp.ImageMessage{
+				Info: whatsapp.MessageInfo{
+					RemoteJid:       jidDest + jidPrefix,
+					QuotedMessageID: msgQuotedID,
+					QuotedMessage:   *quoted,
+				},
+				Content: msgImageStream,
+				Type:    msgImageType,
+				Caption: msgCaption,
+			}
+		} else {
+			content = whatsapp.ImageMessage{
+				Info: whatsapp.MessageInfo{
+					RemoteJid: jidDest + jidPrefix,
+				},
+				Content: msgImageStream,
+				Type:    msgImageType,
+				Caption: msgCaption,
+			}
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
 
-		_, err := wac[jid].Send(content)
+		id, err := wac[jid].Send(content)
 		if err != nil {
 			switch strings.ToLower(err.Error()) {
 			case "sending message timed out":
-				return nil
+				return id, nil
 			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
 				delete(wac, jid)
-				return errors.New("connection is invalid")
+				return "", errors.New("connection is invalid")
 			default:
-				return err
+				return "", err
 			}
 		}
 	} else {
-		return errors.New("connection is invalid")
+		return "", errors.New("connection is invalid")
 	}
 
-	return nil
+	return id, nil
 }
