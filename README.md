@@ -37,7 +37,7 @@ git clone -b master https://github.com/dimaskiddo/go-whatsapp-rest.git .
 ```
 * Run following command to pull dependecies package
 ```
-make ensure
+make vendor
 ```
 * Until this step you already can run this code by using this command
 ```

@@ -270,12 +270,17 @@ func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID strin
 		}
 
 		if len(msgQuotedID) != 0 {
-			pntQuotedMsg := &waproto.Message{
+			msgQuotedProto := waproto.Message{
 				Conversation: &msgQuoted,
 			}
 
-			content.Info.QuotedMessageID = msgQuotedID
-			content.Info.QuotedMessage = *pntQuotedMsg
+			ctxQuotedInfo := whatsapp.ContextInfo{
+				QuotedMessageID: msgQuotedID,
+				QuotedMessage:   &msgQuotedProto,
+				Participant:     jidDest + jidPrefix,
+			}
+
+			content.ContextInfo = ctxQuotedInfo
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)
@@ -318,12 +323,17 @@ func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, m
 		}
 
 		if len(msgQuotedID) != 0 {
-			pntQuotedMsg := &waproto.Message{
+			msgQuotedProto := waproto.Message{
 				Conversation: &msgQuoted,
 			}
 
-			content.Info.QuotedMessageID = msgQuotedID
-			content.Info.QuotedMessage = *pntQuotedMsg
+			ctxQuotedInfo := whatsapp.ContextInfo{
+				QuotedMessageID: msgQuotedID,
+				QuotedMessage:   &msgQuotedProto,
+				Participant:     jidDest + jidPrefix,
+			}
+
+			content.ContextInfo = ctxQuotedInfo
 		}
 
 		<-time.After(time.Duration(msgDelay) * time.Second)

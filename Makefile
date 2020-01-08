@@ -11,18 +11,18 @@ COMMIT_MSG         := "update improvement"
 
 init:
 	make clean
-	dep init -v
+	go mod init
 
 init-dist:
 	mkdir -p dist
 	touch dist/.gitkeep
 
-ensure:
+vendor:
 	make clean
-	dep ensure -v
+	go mod vendor
 
 release:
-	make ensure
+	make vendor
 	goreleaser --snapshot --skip-publish --rm-dist
 	make init-dist
 	echo "Release complete please check dist directory."
@@ -44,7 +44,7 @@ clean:
 	rm -rf ./vendor
 
 commit:
-	make ensure
+	make vendor
 	make clean
 	git add .
 	git commit -am "$(COMMIT_MSG)"
