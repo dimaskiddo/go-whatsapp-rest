@@ -84,7 +84,7 @@ func GetJWTToken(payload interface{}) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtClaimsData{
 		payload.(string),
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(hlp.Config.GetInt64("JWT_EXPIRATION_TIME_HOURS")) * time.Hour).Unix(),
 		},
 	})
 
