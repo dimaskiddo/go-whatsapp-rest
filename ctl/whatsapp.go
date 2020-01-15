@@ -1,7 +1,7 @@
 package ctl
 
 import (
-	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,8 +13,8 @@ import (
 )
 
 type reqWhatsAppLogin struct {
-	Output  string `json:"output"`
-	Timeout int    `json:"timeout"`
+	Output  string
+	Timeout int
 }
 
 type resWhatsAppLogin struct {
@@ -28,11 +28,20 @@ type resWhatsAppLogin struct {
 }
 
 type reqWhatsAppSendMessage struct {
-	MSISDN        string `json:"msisdn"`
-	Message       string `json:"message"`
-	QuotedID      string `json:"quoteid"`
-	QuotedMessage string `json:"quotedmsg"`
-	Delay         int    `json:"delay"`
+	MSISDN        string
+	Message       string
+	QuotedID      string
+	QuotedMessage string
+	Delay         int
+}
+
+type reqWhatsAppSendLocation struct {
+	MSISDN        string
+	Latitude      float64
+	Longitude     float64
+	QuotedID      string
+	QuotedMessage string
+	Delay         int
 }
 
 type resWhatsAppSendMessage struct {
@@ -46,15 +55,24 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.ParseForm()
+
 	var reqBody reqWhatsAppLogin
-	_ = json.NewDecoder(r.Body).Decode(&reqBody)
+	reqBody.Output = r.FormValue("output")
+	reqTimeout := r.FormValue("timeout")
 
 	if len(reqBody.Output) == 0 {
 		reqBody.Output = "json"
 	}
 
-	if reqBody.Timeout == 0 {
+	if len(reqTimeout) == 0 {
 		reqBody.Timeout = 5
+	} else {
+		reqBody.Timeout, err = strconv.Atoi(reqTimeout)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
 	}
 
 	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
@@ -139,8 +157,24 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.ParseForm()
+
 	var reqBody reqWhatsAppSendMessage
-	_ = json.NewDecoder(r.Body).Decode(&reqBody)
+	reqBody.MSISDN = r.FormValue("msisdn")
+	reqBody.Message = r.FormValue("message")
+	reqBody.QuotedID = r.FormValue("qoutedid")
+	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
+	reqDelay := r.FormValue("delay")
+
+	if len(reqDelay) == 0 {
+		reqBody.Delay = 0
+	} else {
+		reqBody.Delay, err = strconv.Atoi(reqDelay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
 		router.ResponseBadRequest(w, "")
@@ -159,7 +193,7 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	router.ResponseSuccessWithData(w, "", resBody)
 }
 
-func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
+func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
@@ -173,9 +207,7 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var reqBody reqWhatsAppSendMessage
-
 	reqBody.MSISDN = r.FormValue("msisdn")
-	reqBody.Message = r.FormValue("message")
 	reqBody.QuotedID = r.FormValue("qoutedid")
 	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
 	reqDelay := r.FormValue("delay")
@@ -190,7 +222,26 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	mpFileStream, mpFileHeader, err := r.FormFile("image")
+	var mpFileStream multipart.File
+	var mpFileHeader *multipart.FileHeader
+
+	switch c {
+	case "document":
+		mpFileStream, mpFileHeader, err = r.FormFile("document")
+		reqBody.Message = mpFileHeader.Filename
+
+	case "audio":
+		mpFileStream, mpFileHeader, err = r.FormFile("audio")
+
+	case "image":
+		mpFileStream, mpFileHeader, err = r.FormFile("image")
+		reqBody.Message = r.FormValue("message")
+
+	case "video":
+		mpFileStream, mpFileHeader, err = r.FormFile("video")
+		reqBody.Message = r.FormValue("message")
+	}
+
 	if err != nil {
 		router.ResponseBadRequest(w, err.Error())
 		return
@@ -199,12 +250,108 @@ func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
 
 	mpFileType := mpFileHeader.Header.Get("Content-Type")
 
-	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
+	if len(reqBody.MSISDN) == 0 {
 		router.ResponseBadRequest(w, "")
 		return
 	}
 
-	id, err := libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+	var id string
+
+	switch c {
+	case "document":
+		id, err = libs.WAMessageDocument(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+
+	case "audio":
+		id, err = libs.WAMessageAudio(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+
+	case "image":
+		id, err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+
+	case "video":
+		id, err = libs.WAMessageVideo(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
+	var resBody resWhatsAppSendMessage
+	resBody.MessageID = id
+
+	router.ResponseSuccessWithData(w, "", resBody)
+}
+
+func WhatsAppSendDocument(w http.ResponseWriter, r *http.Request) {
+	WhatsAppSendContent(w, r, "document")
+}
+
+func WhatsAppSendAudio(w http.ResponseWriter, r *http.Request) {
+	WhatsAppSendContent(w, r, "audio")
+}
+
+func WhatsAppSendImage(w http.ResponseWriter, r *http.Request) {
+	WhatsAppSendContent(w, r, "image")
+}
+
+func WhatsAppSendVideo(w http.ResponseWriter, r *http.Request) {
+	WhatsAppSendContent(w, r, "video")
+}
+
+func WhatsAppSendLocation(w http.ResponseWriter, r *http.Request) {
+	jid, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	r.ParseForm()
+
+	var reqBody reqWhatsAppSendLocation
+	reqBody.MSISDN = r.FormValue("msisdn")
+	reqBody.QuotedID = r.FormValue("qoutedid")
+	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
+	reqDelay := r.FormValue("delay")
+
+	reqBody.Latitude, err = strconv.ParseFloat(r.FormValue("latitude"), 64)
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	reqBody.Longitude, err = strconv.ParseFloat(r.FormValue("longitude"), 64)
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	if len(reqDelay) == 0 {
+		reqBody.Delay = 0
+	} else {
+		reqBody.Delay, err = strconv.Atoi(reqDelay)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
+	if len(reqBody.MSISDN) == 0 {
+		router.ResponseBadRequest(w, "")
+		return
+	}
+
+	id, err := libs.WAMessageLocation(jid, reqBody.MSISDN, reqBody.Latitude, reqBody.Longitude, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return

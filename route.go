@@ -18,6 +18,10 @@ func init() {
 	// Set Endpoint for WhatsApp Functions
 	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/login", ctl.WhatsAppLogin)
 	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/text", ctl.WhatsAppSendText)
+	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/location", ctl.WhatsAppSendLocation)
+	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/document", ctl.WhatsAppSendDocument)
+	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/audio", ctl.WhatsAppSendAudio)
 	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/image", ctl.WhatsAppSendImage)
+	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/send/video", ctl.WhatsAppSendVideo)
 	router.Router.With(auth.JWT).Post(router.RouterBasePath+"/logout", ctl.WhatsAppLogout)
 }
