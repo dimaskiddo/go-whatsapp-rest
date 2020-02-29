@@ -9,4 +9,5 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086
 	github.com/spf13/viper v1.6.1
+	golang.org/x/text v0.3.2 // indirect
 )
