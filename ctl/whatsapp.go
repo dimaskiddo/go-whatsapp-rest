@@ -108,7 +108,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
             <title>WhatsApp Login</title>
           </head>
           <body>
-            <img src="` + qrcode + `" />              
+            <img src="` + qrcode + `" />
             <p>
               <b>QR Code Scan</b>
               <br/>
@@ -162,8 +162,8 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	var reqBody reqWhatsAppSendMessage
 	reqBody.MSISDN = r.FormValue("msisdn")
 	reqBody.Message = r.FormValue("message")
-	reqBody.QuotedID = r.FormValue("qoutedid")
-	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
+	reqBody.QuotedID = r.FormValue("quotedid")
+	reqBody.QuotedMessage = r.FormValue("quotedmsg")
 	reqDelay := r.FormValue("delay")
 
 	if len(reqDelay) == 0 {
@@ -208,8 +208,8 @@ func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 
 	var reqBody reqWhatsAppSendMessage
 	reqBody.MSISDN = r.FormValue("msisdn")
-	reqBody.QuotedID = r.FormValue("qoutedid")
-	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
+	reqBody.QuotedID = r.FormValue("quotedid")
+	reqBody.QuotedMessage = r.FormValue("quotedmsg")
 	reqDelay := r.FormValue("delay")
 
 	if len(reqDelay) == 0 {
@@ -320,8 +320,8 @@ func WhatsAppSendLocation(w http.ResponseWriter, r *http.Request) {
 
 	var reqBody reqWhatsAppSendLocation
 	reqBody.MSISDN = r.FormValue("msisdn")
-	reqBody.QuotedID = r.FormValue("qoutedid")
-	reqBody.QuotedMessage = r.FormValue("qoutedmsg")
+	reqBody.QuotedID = r.FormValue("quotedid")
+	reqBody.QuotedMessage = r.FormValue("quotedmsg")
 	reqDelay := r.FormValue("delay")
 
 	reqBody.Latitude, err = strconv.ParseFloat(r.FormValue("latitude"), 64)
