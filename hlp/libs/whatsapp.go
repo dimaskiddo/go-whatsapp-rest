@@ -256,49 +256,47 @@ func WASessionLogout(jid string, file string) error {
 func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.TextMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		Text: msgText,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.TextMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Text: msgText,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
@@ -307,52 +305,50 @@ func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID strin
 func WAMessageDocument(jid string, jidDest string, msgDocumentStream multipart.File, msgDocumentType string, msgDocumentInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.DocumentMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		Content:  msgDocumentStream,
+		Type:     msgDocumentType,
+		FileName: msgDocumentInfo,
+		Title:    msgDocumentInfo,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.DocumentMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Content:  msgDocumentStream,
-			Type:     msgDocumentType,
-			FileName: msgDocumentInfo,
-			Title:    msgDocumentInfo,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
@@ -361,50 +357,48 @@ func WAMessageDocument(jid string, jidDest string, msgDocumentStream multipart.F
 func WAMessageAudio(jid string, jidDest string, msgAudioStream multipart.File, msgAudioType string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.AudioMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		Content: msgAudioStream,
+		Type:    msgAudioType,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.AudioMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Content: msgAudioStream,
-			Type:    msgAudioType,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
@@ -413,51 +407,49 @@ func WAMessageAudio(jid string, jidDest string, msgAudioStream multipart.File, m
 func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgImageInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.ImageMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		Content: msgImageStream,
+		Type:    msgImageType,
+		Caption: msgImageInfo,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.ImageMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Content: msgImageStream,
-			Type:    msgImageType,
-			Caption: msgImageInfo,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
@@ -466,51 +458,49 @@ func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, m
 func WAMessageVideo(jid string, jidDest string, msgVideoStream multipart.File, msgVideoType string, msgVideoInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.VideoMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		Content: msgVideoStream,
+		Type:    msgVideoType,
+		Caption: msgVideoInfo,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.VideoMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			Content: msgVideoStream,
-			Type:    msgVideoType,
-			Caption: msgVideoInfo,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
@@ -519,51 +509,73 @@ func WAMessageVideo(jid string, jidDest string, msgVideoStream multipart.File, m
 func WAMessageLocation(jid string, jidDest string, msgLatitude float64, msgLongitude float64, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
 	var id string
 
-	if wac[jid] != nil {
-		jidPrefix := "@s.whatsapp.net"
-		if len(strings.SplitN(jidDest, "-", 2)) == 2 {
-			jidPrefix = "@g.us"
+	err := WASessionValidate(jid)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
+	remoteJid := WAParseJid(jidDest)
+
+	content := whatsapp.LocationMessage{
+		Info: whatsapp.MessageInfo{
+			RemoteJid: remoteJid,
+		},
+		DegreesLatitude:  msgLatitude,
+		DegreesLongitude: msgLongitude,
+	}
+
+	if len(msgQuotedID) != 0 {
+		msgQuotedProto := waproto.Message{
+			Conversation: &msgQuoted,
 		}
 
-		content := whatsapp.LocationMessage{
-			Info: whatsapp.MessageInfo{
-				RemoteJid: jidDest + jidPrefix,
-			},
-			DegreesLatitude:  msgLatitude,
-			DegreesLongitude: msgLongitude,
+		ctxQuotedInfo := whatsapp.ContextInfo{
+			QuotedMessageID: msgQuotedID,
+			QuotedMessage:   &msgQuotedProto,
+			Participant:     remoteJid,
 		}
 
-		if len(msgQuotedID) != 0 {
-			msgQuotedProto := waproto.Message{
-				Conversation: &msgQuoted,
-			}
+		content.ContextInfo = ctxQuotedInfo
+	}
 
-			ctxQuotedInfo := whatsapp.ContextInfo{
-				QuotedMessageID: msgQuotedID,
-				QuotedMessage:   &msgQuotedProto,
-				Participant:     jidDest + jidPrefix,
-			}
+	<-time.After(time.Duration(msgDelay) * time.Second)
 
-			content.ContextInfo = ctxQuotedInfo
+	id, err = wac[jid].Send(content)
+	if err != nil {
+		switch strings.ToLower(err.Error()) {
+		case "sending message timed out":
+			return id, nil
+		case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
+			delete(wac, jid)
+			return "", errors.New("connection is invalid")
+		default:
+			return "", err
 		}
-
-		<-time.After(time.Duration(msgDelay) * time.Second)
-
-		id, err := wac[jid].Send(content)
-		if err != nil {
-			switch strings.ToLower(err.Error()) {
-			case "sending message timed out":
-				return id, nil
-			case "could not send proto: failed to write message: error writing to websocket: websocket: close sent":
-				delete(wac, jid)
-				return "", errors.New("connection is invalid")
-			default:
-				return "", err
-			}
-		}
-	} else {
-		return "", errors.New("connection is invalid")
 	}
 
 	return id, nil
+}
+
+func WASessionValidate(jid string) error {
+	if wac[jid] == nil {
+		return errors.New("connection is invalid")
+	}
+
+	return nil
+}
+
+func WAParseJid(jid string) string {
+	components := strings.Split(jid, "@")
+
+	if len(components) > 1 {
+		jid = components[0]
+	}
+
+	suffix := "@s.whatsapp.net"
+
+	if len(strings.SplitN(jid, "-", 2)) == 2 {
+		suffix = "@g.us"
+	}
+
+	return jid + suffix
 }
