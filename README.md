@@ -55,6 +55,7 @@ To build this code to binaries for distribution purposes you can run following c
 make release
 ```
 The build result will shown in build directory
+Or use Docker Images available in dimaskiddo/go-whatsapp-rest
 
 ## API Access
 

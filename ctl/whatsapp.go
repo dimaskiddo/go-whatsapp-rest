@@ -13,8 +13,17 @@ import (
 )
 
 type reqWhatsAppLogin struct {
-	Output  string
-	Timeout int
+	Output   string
+	Timeout  int
+	WhatsApp struct {
+		Client struct {
+			Version struct {
+				Major int
+				Minor int
+				Build int
+			}
+		}
+	}
 }
 
 type resWhatsAppLogin struct {
@@ -61,6 +70,10 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	reqBody.Output = r.FormValue("output")
 	reqTimeout := r.FormValue("timeout")
 
+	reqVersionClientMajor := r.FormValue("client_version_major")
+	reqVersionClientMinor := r.FormValue("client_version_minor")
+	reqVersionClientBuild := r.FormValue("client_version_build")
+
 	if len(reqBody.Output) == 0 {
 		reqBody.Output = "json"
 	}
@@ -75,13 +88,43 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if len(reqVersionClientMajor) == 0 {
+		reqBody.WhatsApp.Client.Version.Major = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_MAJOR")
+	} else {
+		reqBody.WhatsApp.Client.Version.Major, err = strconv.Atoi(reqVersionClientMajor)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
+	if len(reqVersionClientMinor) == 0 {
+		reqBody.WhatsApp.Client.Version.Minor = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_MINOR")
+	} else {
+		reqBody.WhatsApp.Client.Version.Minor, err = strconv.Atoi(reqVersionClientMinor)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
+	if len(reqVersionClientBuild) == 0 {
+		reqBody.WhatsApp.Client.Version.Build = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_BUILD")
+	} else {
+		reqBody.WhatsApp.Client.Version.Build, err = strconv.Atoi(reqVersionClientBuild)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+	}
+
 	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
 	qrstr := make(chan string)
 	errmsg := make(chan error)
 
 	go func() {
-		libs.WASessionConnect(jid, reqBody.Timeout, file, qrstr, errmsg)
+		libs.WASessionConnect(jid, reqBody.WhatsApp.Client.Version.Major, reqBody.WhatsApp.Client.Version.Minor, reqBody.WhatsApp.Client.Version.Build, reqBody.Timeout, file, qrstr, errmsg)
 	}()
 
 	select {

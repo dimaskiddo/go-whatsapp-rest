@@ -13,3 +13,8 @@ ROUTER_BASE_PATH: "/api/v1/whatsapp"
 ## Cryptography Configuration
 CRYPT_PRIVATE_KEY_FILE: "./share/private.key"
 CRYPT_PUBLIC_KEY_FILE: "./share/public.key"
+
+## WhatsApp Configuration
+WHATSAPP_CLIENT_VERSION_MAJOR: 0
+WHATSAPP_CLIENT_VERSION_MINOR: 4
+WHATSAPP_CLIENT_VERSION_BUILD: 1300
