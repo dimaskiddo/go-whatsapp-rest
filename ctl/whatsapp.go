@@ -41,7 +41,6 @@ type reqWhatsAppSendMessage struct {
 	Message       string
 	QuotedID      string
 	QuotedMessage string
-	Delay         int
 }
 
 type reqWhatsAppSendLocation struct {
@@ -50,7 +49,6 @@ type reqWhatsAppSendLocation struct {
 	Longitude     float64
 	QuotedID      string
 	QuotedMessage string
-	Delay         int
 }
 
 type resWhatsAppSendMessage struct {
@@ -207,24 +205,13 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 	reqBody.Message = r.FormValue("message")
 	reqBody.QuotedID = r.FormValue("quotedid")
 	reqBody.QuotedMessage = r.FormValue("quotedmsg")
-	reqDelay := r.FormValue("delay")
-
-	if len(reqDelay) == 0 {
-		reqBody.Delay = 0
-	} else {
-		reqBody.Delay, err = strconv.Atoi(reqDelay)
-		if err != nil {
-			router.ResponseInternalError(w, err.Error())
-			return
-		}
-	}
 
 	if len(reqBody.MSISDN) == 0 || len(reqBody.Message) == 0 {
 		router.ResponseBadRequest(w, "")
 		return
 	}
 
-	id, err := libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+	id, err := libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
@@ -253,17 +240,6 @@ func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 	reqBody.MSISDN = r.FormValue("msisdn")
 	reqBody.QuotedID = r.FormValue("quotedid")
 	reqBody.QuotedMessage = r.FormValue("quotedmsg")
-	reqDelay := r.FormValue("delay")
-
-	if len(reqDelay) == 0 {
-		reqBody.Delay = 0
-	} else {
-		reqBody.Delay, err = strconv.Atoi(reqDelay)
-		if err != nil {
-			router.ResponseInternalError(w, err.Error())
-			return
-		}
-	}
 
 	var mpFileStream multipart.File
 	var mpFileHeader *multipart.FileHeader
@@ -302,28 +278,28 @@ func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 
 	switch c {
 	case "document":
-		id, err = libs.WAMessageDocument(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		id, err = libs.WAMessageDocument(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "audio":
-		id, err = libs.WAMessageAudio(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		id, err = libs.WAMessageAudio(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "image":
-		id, err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		id, err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "video":
-		id, err = libs.WAMessageVideo(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+		id, err = libs.WAMessageVideo(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
@@ -365,7 +341,6 @@ func WhatsAppSendLocation(w http.ResponseWriter, r *http.Request) {
 	reqBody.MSISDN = r.FormValue("msisdn")
 	reqBody.QuotedID = r.FormValue("quotedid")
 	reqBody.QuotedMessage = r.FormValue("quotedmsg")
-	reqDelay := r.FormValue("delay")
 
 	reqBody.Latitude, err = strconv.ParseFloat(r.FormValue("latitude"), 64)
 	if err != nil {
@@ -379,22 +354,12 @@ func WhatsAppSendLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(reqDelay) == 0 {
-		reqBody.Delay = 0
-	} else {
-		reqBody.Delay, err = strconv.Atoi(reqDelay)
-		if err != nil {
-			router.ResponseInternalError(w, err.Error())
-			return
-		}
-	}
-
 	if len(reqBody.MSISDN) == 0 {
 		router.ResponseBadRequest(w, "")
 		return
 	}
 
-	id, err := libs.WAMessageLocation(jid, reqBody.MSISDN, reqBody.Latitude, reqBody.Longitude, reqBody.QuotedID, reqBody.QuotedMessage, reqBody.Delay)
+	id, err := libs.WAMessageLocation(jid, reqBody.MSISDN, reqBody.Latitude, reqBody.Longitude, reqBody.QuotedID, reqBody.QuotedMessage)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return

@@ -309,7 +309,7 @@ func WASessionValidate(jid string) error {
 	return nil
 }
 
-func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
@@ -356,7 +356,7 @@ func WAMessageText(jid string, jidDest string, msgText string, msgQuotedID strin
 	return id, nil
 }
 
-func WAMessageDocument(jid string, jidDest string, msgDocumentStream multipart.File, msgDocumentType string, msgDocumentInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageDocument(jid string, jidDest string, msgDocumentStream multipart.File, msgDocumentType string, msgDocumentInfo string, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
@@ -406,7 +406,7 @@ func WAMessageDocument(jid string, jidDest string, msgDocumentStream multipart.F
 	return id, nil
 }
 
-func WAMessageAudio(jid string, jidDest string, msgAudioStream multipart.File, msgAudioType string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageAudio(jid string, jidDest string, msgAudioStream multipart.File, msgAudioType string, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
@@ -454,7 +454,7 @@ func WAMessageAudio(jid string, jidDest string, msgAudioStream multipart.File, m
 	return id, nil
 }
 
-func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgImageInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, msgImageType string, msgImageInfo string, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
@@ -503,7 +503,7 @@ func WAMessageImage(jid string, jidDest string, msgImageStream multipart.File, m
 	return id, nil
 }
 
-func WAMessageVideo(jid string, jidDest string, msgVideoStream multipart.File, msgVideoType string, msgVideoInfo string, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageVideo(jid string, jidDest string, msgVideoStream multipart.File, msgVideoType string, msgVideoInfo string, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
@@ -552,7 +552,7 @@ func WAMessageVideo(jid string, jidDest string, msgVideoStream multipart.File, m
 	return id, nil
 }
 
-func WAMessageLocation(jid string, jidDest string, msgLatitude float64, msgLongitude float64, msgQuotedID string, msgQuoted string, msgDelay int) (string, error) {
+func WAMessageLocation(jid string, jidDest string, msgLatitude float64, msgLongitude float64, msgQuotedID string, msgQuoted string) (string, error) {
 	var id string
 
 	err := WASessionValidate(jid)
