@@ -1,4 +1,4 @@
-package hlp
+package log
 
 import (
 	"os"
@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
 )
 
 // Log Variable
-var log *logrus.Logger
+var logger *logrus.Logger
 
 // Log Level Data Type
 type logLevel string
@@ -28,77 +30,77 @@ const (
 // Initialize Function in Helper Logging
 func init() {
 	// Initialize Log as New Logrus Logger
-	log = logrus.New()
+	logger = logrus.New()
 
 	// Set Log Format to JSON Format
-	log.SetFormatter(&logrus.JSONFormatter{
+	logger.SetFormatter(&logrus.JSONFormatter{
 		DisableTimestamp: false,
 		TimestampFormat:  time.RFC3339Nano,
 	})
 
 	// Set Log Output to STDOUT
-	log.SetOutput(os.Stdout)
+	logger.SetOutput(os.Stdout)
 
 	// Set Log Level
-	switch strings.ToLower(Config.GetString("SERVER_LOG_LEVEL")) {
+	switch strings.ToLower(server.Config.GetString("SERVER_LOG_LEVEL")) {
 	case "panic":
-		log.SetLevel(logrus.PanicLevel)
+		logger.SetLevel(logrus.PanicLevel)
 	case "fatal":
-		log.SetLevel(logrus.FatalLevel)
+		logger.SetLevel(logrus.FatalLevel)
 	case "error":
-		log.SetLevel(logrus.ErrorLevel)
+		logger.SetLevel(logrus.ErrorLevel)
 	case "warn":
-		log.SetLevel(logrus.WarnLevel)
+		logger.SetLevel(logrus.WarnLevel)
 	case "debug":
-		log.SetLevel(logrus.DebugLevel)
+		logger.SetLevel(logrus.DebugLevel)
 	case "trace":
-		log.SetLevel(logrus.TraceLevel)
+		logger.SetLevel(logrus.TraceLevel)
 	default:
-		log.SetLevel(logrus.InfoLevel)
+		logger.SetLevel(logrus.InfoLevel)
 	}
 }
 
-// LogPrintln Function
-func LogPrintln(level logLevel, label string, message interface{}) {
+// Println Function
+func Println(level logLevel, label string, message interface{}) {
 	// Make Sure Log Is Not Empty Variable
-	if log != nil {
+	if logger != nil {
 		// Set Service Name Log Information
-		service := strings.ToLower(Config.GetString("SERVER_NAME"))
+		service := strings.ToLower(server.Config.GetString("SERVER_NAME"))
 
 		// Print Log Based On Log Level Type
 		switch level {
 		case "panic":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Panicln(message)
 		case "fatal":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Fatalln(message)
 		case "error":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Errorln(message)
 		case "warn":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Warnln(message)
 		case "debug":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Debug(message)
 		case "trace":
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Traceln(message)
 		default:
-			log.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				"service": service,
 				"label":   label,
 			}).Infoln(message)

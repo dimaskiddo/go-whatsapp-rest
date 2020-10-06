@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/log"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
 )
 
 // ReqGetBasic Struct
@@ -27,7 +27,7 @@ func Basic(next http.Handler) http.Handler {
 		// Authorization Section Length Should Be 2
 		// The First Authorization Section Should Be "Basic"
 		if len(authHeader) != 2 || authHeader[0] != "Basic" {
-			hlp.LogPrintln(hlp.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
+			log.Println(log.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			router.ResponseAuthenticate(w)
 			return
 		}
@@ -46,7 +46,7 @@ func Basic(next http.Handler) http.Handler {
 		// Check Credentials Section
 		// It Should Have 2 Section, Username and Password
 		if len(authCredentials) != 2 {
-			hlp.LogPrintln(hlp.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
+			log.Println(log.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			router.ResponseBadRequest(w, "")
 			return
 		}

@@ -1,12 +1,12 @@
-package ctl
+package index
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/auth"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/auth"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
 )
 
 // GetAuth Function to Get Authorization Token
@@ -20,7 +20,7 @@ func GetAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if reqBody.Password != hlp.Config.GetString("AUTH_BASIC_PASSWORD") {
+	if reqBody.Password != server.Config.GetString("AUTH_BASIC_PASSWORD") {
 		router.ResponseBadRequest(w, "invalid authorization")
 		return
 	}

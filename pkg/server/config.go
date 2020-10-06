@@ -1,9 +1,12 @@
-package hlp
+package server
 
 import (
+	"fmt"
+	"log"
 	"math"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -22,7 +25,7 @@ func init() {
 	// Set Configuration Path Value
 	configFilePath := strings.ToLower(os.Getenv("CONFIG_FILE_PATH"))
 	if len(configFilePath) == 0 {
-		configFilePath = "./share/etc"
+		configFilePath = "./config"
 	}
 
 	// Set Configuration Type Value
@@ -63,7 +66,7 @@ func configLoadFile() {
 	// Load Configuration File
 	err := Config.ReadInConfig()
 	if err != nil {
-		LogPrintln(LogLevelWarn, "config-load-file", err.Error())
+		log.Println("{\"label\":\"config-load-file\",\"level\":\"warning\",\"msg\":\"error loading config file, " + err.Error() + "\",\"service\":\"" + Config.GetString("SERVER_NAME") + "\",\"time\":" + fmt.Sprint(time.Now().Format(time.RFC3339Nano)) + "\"}")
 	}
 }
 
@@ -74,17 +77,17 @@ func configLoadValues() {
 
 	// Server IP Value
 	Config.SetDefault("SERVER_IP", "0.0.0.0")
-	serverCfg.IP = Config.GetString("SERVER_IP")
+	ServerCfg.IP = Config.GetString("SERVER_IP")
 
 	// Server Port Value
 	Config.SetDefault("SERVER_PORT", "3000")
-	serverCfg.Port = Config.GetString("SERVER_PORT")
+	ServerCfg.Port = Config.GetString("SERVER_PORT")
 
 	// Server Store Path Value
-	Config.SetDefault("SERVER_STORE_PATH", "./share/store")
+	Config.SetDefault("SERVER_STORE_PATH", "./config/stores")
 
 	// Server Upload Path Value
-	Config.SetDefault("SERVER_UPLOAD_PATH", "./share/upload")
+	Config.SetDefault("SERVER_UPLOAD_PATH", "./config/uploads")
 
 	// Server Upload Limit Value
 	Config.SetDefault("SERVER_UPLOAD_LIMIT", 8)
@@ -106,14 +109,11 @@ func configLoadValues() {
 	Config.SetDefault("CORS_ALLOWED_HEADER", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
 
 	// Crypt RSA Private Key File Value
-	Config.SetDefault("CRYPT_PRIVATE_KEY_FILE", "./share/private.key")
+	Config.SetDefault("CRYPT_PRIVATE_KEY_FILE", "./config/keys/private.key")
 
 	// Crypt RSA Public Key File Value
-	Config.SetDefault("CRYPT_PUBLIC_KEY_FILE", "./share/public.key")
+	Config.SetDefault("CRYPT_PUBLIC_KEY_FILE", "./config/keys/public.key")
 
 	// JWT Expiration Time Value
 	Config.SetDefault("JWT_EXPIRATION_TIME_HOURS", 24)
-
-	// Authentication Basic Password Value
-	Config.SetDefault("AUTH_BASIC_PASSWORD", "83e4060e-78e1-4fe5-9977-aeeccd46a2b8")
 }

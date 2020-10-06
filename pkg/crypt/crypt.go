@@ -1,4 +1,4 @@
-package hlp
+package crypt
 
 import (
 	"crypto/rand"
@@ -8,6 +8,9 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"io/ioutil"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/log"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
 )
 
 // Key RSA Config Struct
@@ -26,27 +29,27 @@ func init() {
 	var err error
 
 	// Load RSA Private Key as Bytes From Private Key File
-	KeyRSACfg.BytePrivate, err = ioutil.ReadFile(Config.GetString("CRYPT_PRIVATE_KEY_FILE"))
+	KeyRSACfg.BytePrivate, err = ioutil.ReadFile(server.Config.GetString("CRYPT_PRIVATE_KEY_FILE"))
 	if err != nil {
-		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
+		log.Println(log.LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Private Key Data By Converting RSA Private Key Bytes
 	KeyRSACfg.KeyPrivate, err = BytesToPrivateKey(KeyRSACfg.BytePrivate)
 	if err != nil {
-		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
+		log.Println(log.LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key as Bytes From Public Key File
-	KeyRSACfg.BytePublic, err = ioutil.ReadFile(Config.GetString("CRYPT_PUBLIC_KEY_FILE"))
+	KeyRSACfg.BytePublic, err = ioutil.ReadFile(server.Config.GetString("CRYPT_PUBLIC_KEY_FILE"))
 	if err != nil {
-		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
+		log.Println(log.LogLevelFatal, "init-crypt", err.Error())
 	}
 
 	// Load RSA Public Key Data By Converting RSA Public Key Bytes
 	KeyRSACfg.KeyPublic, err = BytesToPublicKey(KeyRSACfg.BytePublic)
 	if err != nil {
-		LogPrintln(LogLevelFatal, "init-crypt", err.Error())
+		log.Println(log.LogLevelFatal, "init-crypt", err.Error())
 	}
 }
 

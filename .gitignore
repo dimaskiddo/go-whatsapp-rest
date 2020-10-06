@@ -1,3 +1,6 @@
-share/store/*.gob
+dist
 vendor
+config/stores/*
+config/uploads/*
+*.DS_Store
 !*.gitkeep

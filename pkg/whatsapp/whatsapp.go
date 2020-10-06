@@ -1,4 +1,4 @@
-package libs
+package whatsapp
 
 import (
 	"encoding/base64"
@@ -16,7 +16,7 @@ import (
 	waproto "github.com/Rhymen/go-whatsapp/binary/proto"
 	qrcode "github.com/skip2/go-qrcode"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/log"
 )
 
 var wac = make(map[string]*whatsapp.Conn)
@@ -111,7 +111,7 @@ func WASessionInit(jid string, versionClientMajor int, versionClientMinor int, v
 		if err != nil {
 			return err
 		}
-		hlp.LogPrintln(hlp.LogLevelInfo, "whatsapp", info)
+		log.Println(log.LogLevelInfo, "whatsapp", info)
 
 		wacMutex[jid] = &sync.Mutex{}
 		wac[jid] = conn

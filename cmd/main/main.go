@@ -2,21 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
+
+	"github.com/dimaskiddo/go-whatsapp-rest/internal"
 )
 
 // Server Variable
-var svr *hlp.Server
+var svr *server.Server
 
 // Init Function
 func init() {
+	// Set Go Log Flags
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
+	// Load Routes
+	internal.LoadRoutes()
+
 	// Initialize Server
-	svr = hlp.NewServer(router.Router)
+	svr = server.NewServer(router.Router)
 }
 
 // Main Function

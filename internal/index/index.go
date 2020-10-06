@@ -1,9 +1,9 @@
-package ctl
+package index
 
 import (
 	"net/http"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
 )
 
 // GetIndex Function to Show API Information

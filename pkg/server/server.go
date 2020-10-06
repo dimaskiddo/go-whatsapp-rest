@@ -1,7 +1,9 @@
-package hlp
+package server
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -23,14 +25,14 @@ type serverConfig struct {
 }
 
 // Server Configuration Variable
-var serverCfg serverConfig
+var ServerCfg serverConfig
 
 // NewServer Function to Create a New Server Handler
 func NewServer(handler http.Handler) *Server {
 	// Initialize New Server
 	return &Server{
 		srv: &http.Server{
-			Addr:    net.JoinHostPort(serverCfg.IP, serverCfg.Port),
+			Addr:    net.JoinHostPort(ServerCfg.IP, ServerCfg.Port),
 			Handler: handler,
 		},
 	}
@@ -47,9 +49,9 @@ func (s *Server) Start() {
 	s.wg.Add(1)
 
 	// Start The Server
-	LogPrintln(LogLevelInfo, "http-server", "server master started at PID "+strconv.Itoa(os.Getpid()))
+	log.Println("{\"label\":\"server-http\",\"level\":\"info\",\"msg\":\"server master started at pid " + strconv.Itoa(os.Getpid()) + "\",\"service\":\"" + Config.GetString("SERVER_NAME") + "\",\"time\":" + fmt.Sprint(time.Now().Format(time.RFC3339Nano)) + "\"}")
 	go func() {
-		LogPrintln(LogLevelInfo, "http-server", "server worker started at PID "+strconv.Itoa(os.Getpid())+" listening on "+net.JoinHostPort(serverCfg.IP, serverCfg.Port))
+		log.Println("{\"label\":\"server-http\",\"level\":\"info\",\"msg\":\"server worker started at pid " + strconv.Itoa(os.Getpid()) + " listening on " + net.JoinHostPort(ServerCfg.IP, ServerCfg.Port) + "\",\"service\":\"" + Config.GetString("SERVER_NAME") + "\",\"time\":" + fmt.Sprint(time.Now().Format(time.RFC3339Nano)) + "\"}")
 		s.srv.ListenAndServe()
 
 		s.wg.Done()
@@ -68,7 +70,7 @@ func (s *Server) Stop() {
 	// Hanlde Any Error While Stopping Server
 	if err := s.srv.Shutdown(ctx); err != nil {
 		if err = s.srv.Close(); err != nil {
-			LogPrintln("error", "http-server", err.Error())
+			log.Fatalln("{\"label\":\"server-http\",\"level\":\"error\",\"msg\":\"" + err.Error() + "\",\"service\":\"" + Config.GetString("SERVER_NAME") + "\",\"time\":" + fmt.Sprint(time.Now().Format(time.RFC3339Nano)) + "\"}")
 			return
 		}
 	}

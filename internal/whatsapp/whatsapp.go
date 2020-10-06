@@ -1,4 +1,4 @@
-package ctl
+package whatsapp
 
 import (
 	"mime/multipart"
@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/auth"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/libs"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/auth"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/whatsapp"
 )
 
 type reqWhatsAppLogin struct {
@@ -87,7 +87,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(reqVersionClientMajor) == 0 {
-		reqBody.WhatsApp.Client.Version.Major = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_MAJOR")
+		reqBody.WhatsApp.Client.Version.Major = server.Config.GetInt("WHATSAPP_CLIENT_VERSION_MAJOR")
 	} else {
 		reqBody.WhatsApp.Client.Version.Major, err = strconv.Atoi(reqVersionClientMajor)
 		if err != nil {
@@ -97,7 +97,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(reqVersionClientMinor) == 0 {
-		reqBody.WhatsApp.Client.Version.Minor = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_MINOR")
+		reqBody.WhatsApp.Client.Version.Minor = server.Config.GetInt("WHATSAPP_CLIENT_VERSION_MINOR")
 	} else {
 		reqBody.WhatsApp.Client.Version.Minor, err = strconv.Atoi(reqVersionClientMinor)
 		if err != nil {
@@ -107,7 +107,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(reqVersionClientBuild) == 0 {
-		reqBody.WhatsApp.Client.Version.Build = hlp.Config.GetInt("WHATSAPP_CLIENT_VERSION_BUILD")
+		reqBody.WhatsApp.Client.Version.Build = server.Config.GetInt("WHATSAPP_CLIENT_VERSION_BUILD")
 	} else {
 		reqBody.WhatsApp.Client.Version.Build, err = strconv.Atoi(reqVersionClientBuild)
 		if err != nil {
@@ -116,13 +116,13 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
+	file := server.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
 	qrstr := make(chan string)
 	errmsg := make(chan error)
 
 	go func() {
-		libs.WASessionConnect(jid, reqBody.WhatsApp.Client.Version.Major, reqBody.WhatsApp.Client.Version.Minor, reqBody.WhatsApp.Client.Version.Build, reqBody.Timeout, file, qrstr, errmsg)
+		whatsapp.WASessionConnect(jid, reqBody.WhatsApp.Client.Version.Major, reqBody.WhatsApp.Client.Version.Minor, reqBody.WhatsApp.Client.Version.Build, reqBody.Timeout, file, qrstr, errmsg)
 	}()
 
 	select {
@@ -180,9 +180,9 @@ func WhatsAppLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file := hlp.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
+	file := server.Config.GetString("SERVER_STORE_PATH") + "/" + jid + ".gob"
 
-	err = libs.WASessionLogout(jid, file)
+	err = whatsapp.WASessionLogout(jid, file)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
@@ -211,7 +211,7 @@ func WhatsAppSendText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := libs.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
+	id, err := whatsapp.WAMessageText(jid, reqBody.MSISDN, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
@@ -230,7 +230,7 @@ func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 		return
 	}
 
-	err = r.ParseMultipartForm(hlp.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
+	err = r.ParseMultipartForm(server.Config.GetInt64("SERVER_UPLOAD_LIMIT"))
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
@@ -278,28 +278,28 @@ func WhatsAppSendContent(w http.ResponseWriter, r *http.Request, c string) {
 
 	switch c {
 	case "document":
-		id, err = libs.WAMessageDocument(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
+		id, err = whatsapp.WAMessageDocument(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "audio":
-		id, err = libs.WAMessageAudio(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.QuotedID, reqBody.QuotedMessage)
+		id, err = whatsapp.WAMessageAudio(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "image":
-		id, err = libs.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
+		id, err = whatsapp.WAMessageImage(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
 		}
 
 	case "video":
-		id, err = libs.WAMessageVideo(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
+		id, err = whatsapp.WAMessageVideo(jid, reqBody.MSISDN, mpFileStream, mpFileType, reqBody.Message, reqBody.QuotedID, reqBody.QuotedMessage)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
@@ -359,7 +359,7 @@ func WhatsAppSendLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := libs.WAMessageLocation(jid, reqBody.MSISDN, reqBody.Latitude, reqBody.Longitude, reqBody.QuotedID, reqBody.QuotedMessage)
+	id, err := whatsapp.WAMessageLocation(jid, reqBody.MSISDN, reqBody.Latitude, reqBody.Longitude, reqBody.QuotedID, reqBody.QuotedMessage)
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return

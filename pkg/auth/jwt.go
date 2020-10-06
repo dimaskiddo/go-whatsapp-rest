@@ -7,8 +7,10 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/crypt"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/log"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/router"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/server"
 )
 
 // ResGetJWT Struct
@@ -38,7 +40,7 @@ func JWT(next http.Handler) http.Handler {
 		// Authorization Section Length Should Be 2
 		// The First Authorization Section Should Be "Bearer"
 		if len(authHeader) != 2 || authHeader[0] != "Bearer" {
-			hlp.LogPrintln(hlp.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
+			log.Println(log.LogLevelWarn, "http-access", "unauthorized method "+r.Method+" at URI "+r.RequestURI)
 			router.ResponseUnauthorized(w)
 			return
 		}
@@ -58,7 +60,7 @@ func JWT(next http.Handler) http.Handler {
 		}
 
 		// Encrypt Claims Using RSA Encryption
-		claimsEncrypted, err := hlp.EncryptWithRSA(authClaims["data"].(string))
+		claimsEncrypted, err := crypt.EncryptWithRSA(authClaims["data"].(string))
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
@@ -75,7 +77,7 @@ func JWT(next http.Handler) http.Handler {
 // GetJWTToken Function to Generate JWT Token
 func GetJWTToken(payload interface{}) (string, error) {
 	// Convert Signing Key in Byte Format
-	signingKey, err := jwt.ParseRSAPrivateKeyFromPEM(hlp.KeyRSACfg.BytePrivate)
+	signingKey, err := jwt.ParseRSAPrivateKeyFromPEM(crypt.KeyRSACfg.BytePrivate)
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +86,7 @@ func GetJWTToken(payload interface{}) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtClaimsData{
 		payload.(string),
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(hlp.Config.GetInt64("JWT_EXPIRATION_TIME_HOURS")) * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(server.Config.GetInt64("JWT_EXPIRATION_TIME_HOURS")) * time.Hour).Unix(),
 		},
 	})
 
@@ -101,7 +103,7 @@ func GetJWTToken(payload interface{}) (string, error) {
 // GetJWTClaims Function to Get JWT Claims in Plain Text
 func GetJWTClaims(data string) (string, error) {
 	// Decrypt Encrypted Claims Using RSA Encryption
-	claimsDecrypted, err := hlp.DecryptWithRSA(data)
+	claimsDecrypted, err := crypt.DecryptWithRSA(data)
 	if err != nil {
 		return "", err
 	}
@@ -113,7 +115,7 @@ func GetJWTClaims(data string) (string, error) {
 // JWTClaims Function to Get JWT Claims Information
 func jwtClaims(data string) (jwt.MapClaims, error) {
 	// Convert Signing Key in Byte Format
-	signingKey, err := jwt.ParseRSAPublicKeyFromPEM(hlp.KeyRSACfg.BytePublic)
+	signingKey, err := jwt.ParseRSAPublicKeyFromPEM(crypt.KeyRSACfg.BytePublic)
 	if err != nil {
 		return nil, err
 	}

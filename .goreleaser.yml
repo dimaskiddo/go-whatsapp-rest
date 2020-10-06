@@ -2,11 +2,11 @@ before:
   hooks:
     - make vendor
 builds:
-- binary: go-whatsapp
+- main: ./cmd/main/main.go
   env:
     - CGO_ENABLED=0
   ldflags:
-    - -s -w -X main.build={{ .Version }} -X main.commit={{ .ShortCommit }} -X main.date={{ .Date }}
+    - -s -w
   goos:
     - darwin
     - linux
@@ -24,8 +24,8 @@ archives:
   format: zip
   files:
     - README.md
-    - share/*
-    - share/**/*
+    - config/*
+    - config/**/*
 checksum:
   name_template: 'checksums.txt'
 snapshot:

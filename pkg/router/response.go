@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dimaskiddo/go-whatsapp-rest/hlp"
+	"github.com/dimaskiddo/go-whatsapp-rest/pkg/log"
 )
 
 // ResSuccess Struct
@@ -163,7 +163,7 @@ func ResponseBadRequest(w http.ResponseWriter, message string) {
 	response.Error = message
 
 	// Logging Error
-	hlp.LogPrintln(hlp.LogLevelError, "http-access", strings.ToLower(message))
+	log.Println(log.LogLevelError, "http-access", strings.ToLower(message))
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)
@@ -185,7 +185,29 @@ func ResponseInternalError(w http.ResponseWriter, message string) {
 	response.Error = message
 
 	// Logging Error
-	hlp.LogPrintln(hlp.LogLevelError, "http-access", strings.ToLower(message))
+	log.Println(log.LogLevelError, "http-access", strings.ToLower(message))
+
+	// Set Response Data to HTTP
+	ResponseWrite(w, response.Code, response)
+}
+
+// ResponseBadGateway Function
+func ResponseBadGateway(w http.ResponseWriter, message string) {
+	var response ResError
+
+	// Set Default Message
+	if len(message) == 0 {
+		message = "Bad Gateway"
+	}
+
+	// Set Response Data
+	response.Status = false
+	response.Code = http.StatusBadGateway
+	response.Message = "Bad Gateway"
+	response.Error = message
+
+	// Logging Error
+	log.Println(log.LogLevelError, "http-access", strings.ToLower(message))
 
 	// Set Response Data to HTTP
 	ResponseWrite(w, response.Code, response)
