@@ -13,9 +13,10 @@ import (
 )
 
 type reqWhatsAppLogin struct {
-	Output   string
-	Timeout  int
-	WhatsApp struct {
+	Output    string
+	Reconnect int
+	Timeout   int
+	WhatsApp  struct {
 		Client struct {
 			Version struct {
 				Major int
@@ -31,8 +32,9 @@ type resWhatsAppLogin struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    struct {
-		QRCode  string `json:"qrcode"`
-		Timeout int    `json:"timeout"`
+		QRCode    string `json:"qrcode"`
+		Reconnect int    `json:"reconnect"`
+		Timeout   int    `json:"timeout"`
 	} `json:"data"`
 }
 
@@ -66,6 +68,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 	var reqBody reqWhatsAppLogin
 	reqBody.Output = r.FormValue("output")
+	reqReconnect := r.FormValue("reconnect")
 	reqTimeout := r.FormValue("timeout")
 
 	reqVersionClientMajor := r.FormValue("client_version_major")
@@ -74,6 +77,16 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 
 	if len(reqBody.Output) == 0 {
 		reqBody.Output = "json"
+	}
+
+	if len(reqReconnect) == 0 {
+		reqBody.Reconnect = 15
+	} else {
+		reqBody.Reconnect, err = strconv.Atoi(reqReconnect)
+		if err != nil {
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
 	}
 
 	if len(reqTimeout) == 0 {
@@ -122,7 +135,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	errmsg := make(chan error)
 
 	go func() {
-		whatsapp.WASessionConnect(jid, reqBody.WhatsApp.Client.Version.Major, reqBody.WhatsApp.Client.Version.Minor, reqBody.WhatsApp.Client.Version.Build, reqBody.Timeout, file, qrstr, errmsg)
+		whatsapp.WASessionConnect(jid, reqBody.WhatsApp.Client.Version.Major, reqBody.WhatsApp.Client.Version.Minor, reqBody.WhatsApp.Client.Version.Build, reqBody.Timeout, file, reqBody.Reconnect, qrstr, errmsg)
 	}()
 
 	select {

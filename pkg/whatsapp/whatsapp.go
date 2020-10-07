@@ -22,6 +22,46 @@ import (
 var wac = make(map[string]*whatsapp.Conn)
 var wacMutex = make(map[string]*sync.Mutex)
 
+type waHandler struct {
+	SessionConn   *whatsapp.Conn
+	SessionJid    string
+	SessionID     string
+	SessionFile   string
+	SessionStart  uint64
+	ReconnectTime int
+}
+
+func (wah *waHandler) HandleError(err error) {
+	_, eMatchFailed := err.(*whatsapp.ErrConnectionFailed)
+	_, eMatchClosed := err.(*whatsapp.ErrConnectionClosed)
+
+	if eMatchFailed || eMatchClosed {
+		if WASessionExist(wah.SessionFile) && wah.SessionConn != nil {
+			log.Println(log.LogLevelWarn, "whatsapp-error-handler", fmt.Sprintf("id %s connection closed unexpetedly, reconnecting after %d seconds", wah.SessionID, wah.ReconnectTime))
+
+			<-time.After(time.Duration(wah.ReconnectTime) * time.Second)
+
+			err := wah.SessionConn.Restore()
+			if err != nil {
+				log.Println(log.LogLevelError, "whatsapp-error-handler", fmt.Sprintf("id %s session restore error, %s", wah.SessionID, err.Error()))
+
+				if WASessionExist(wah.SessionFile) {
+					err := os.Remove(wah.SessionFile)
+					if err != nil {
+						log.Println(log.LogLevelError, "whatsapp-error-handler", fmt.Sprintf("id %s remove session file error, %s", wah.SessionID, err.Error()))
+					}
+				}
+
+				delete(wac, wah.SessionJid)
+			} else {
+				wah.SessionStart = uint64(time.Now().Unix())
+			}
+		}
+	} else {
+		log.Println(log.LogLevelError, "whatsapp-error-handler", fmt.Sprintf("id %s caught an error, %s", wah.SessionID, err.Error()))
+	}
+}
+
 func WAParseJID(jid string) string {
 	components := strings.Split(jid, "@")
 
@@ -111,7 +151,7 @@ func WASessionInit(jid string, versionClientMajor int, versionClientMinor int, v
 		if err != nil {
 			return err
 		}
-		log.Println(log.LogLevelInfo, "whatsapp", info)
+		log.Println(log.LogLevelInfo, "whatsapp-session-init", info)
 
 		wacMutex[jid] = &sync.Mutex{}
 		wac[jid] = conn
@@ -161,7 +201,7 @@ func WASessionExist(file string) bool {
 	return true
 }
 
-func WASessionConnect(jid string, versionClientMajor int, versionClientMinor int, versionClientBuild int, timeout int, file string, qrstr chan<- string, errmsg chan<- error) {
+func WASessionConnect(jid string, versionClientMajor int, versionClientMinor int, versionClientBuild int, timeout int, file string, reconnect int, qrstr chan<- string, errmsg chan<- error) {
 	chanqr := make(chan string)
 
 	session, err := WASessionLoad(file)
@@ -196,6 +236,15 @@ func WASessionConnect(jid string, versionClientMajor int, versionClientMinor int
 		errmsg <- err
 		return
 	}
+
+	wac[jid].AddHandler(&waHandler{
+		SessionConn:   wac[jid],
+		SessionJid:    jid,
+		SessionID:     jid[0:len(jid)-4] + "xxxx",
+		SessionFile:   file,
+		SessionStart:  uint64(time.Now().Unix()),
+		ReconnectTime: reconnect,
+	})
 
 	errmsg <- errors.New("")
 	return
@@ -281,6 +330,13 @@ func WASessionRestore(jid string, versionClientMajor int, versionClientMinor int
 
 func WASessionLogout(jid string, file string) error {
 	if wac[jid] != nil {
+		defer func() {
+			_, _ = wac[jid].Disconnect()
+			delete(wac, jid)
+		}()
+
+		wac[jid].RemoveHandlers()
+
 		err := wac[jid].Logout()
 		if err != nil {
 			return err
@@ -292,8 +348,6 @@ func WASessionLogout(jid string, file string) error {
 				return err
 			}
 		}
-
-		delete(wac, jid)
 	} else {
 		return errors.New("connection is invalid")
 	}
