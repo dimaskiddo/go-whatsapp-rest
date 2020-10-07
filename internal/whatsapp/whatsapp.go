@@ -80,7 +80,7 @@ func WhatsAppLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(reqReconnect) == 0 {
-		reqBody.Reconnect = 15
+		reqBody.Reconnect = 30
 	} else {
 		reqBody.Reconnect, err = strconv.Atoi(reqReconnect)
 		if err != nil {
