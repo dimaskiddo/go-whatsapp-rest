@@ -52,6 +52,9 @@ func (wah *waHandler) HandleError(err error) {
 					}
 				}
 
+				_, _ = wah.SessionConn.Disconnect()
+				wah.SessionConn.RemoveHandlers()
+
 				delete(wac, wah.SessionJid)
 			} else {
 				wah.SessionStart = uint64(time.Now().Unix())
