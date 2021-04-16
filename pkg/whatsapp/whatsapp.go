@@ -94,7 +94,7 @@ func WASendWithMutex(jid string, content interface{}) (string, error) {
 	mutex, ok := wacMutex[jid]
 
 	if !ok {
-		mutex := &sync.Mutex{}
+		mutex = &sync.Mutex{}
 		wacMutex[jid] = mutex
 	}
 
