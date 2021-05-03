@@ -1,6 +1,6 @@
 # Builder Image
 # ---------------------------------------------------
-FROM dimaskiddo/alpine:go-1.12 AS go-builder
+FROM dimaskiddo/alpine:go-1.13 AS go-builder
 
 WORKDIR /usr/src/app
 
@@ -25,10 +25,10 @@ WORKDIR /usr/app/${SERVICE_NAME}
 COPY --from=go-builder /usr/src/app/config/ ./config
 COPY --from=go-builder /usr/src/app/main ./go-whatsapp-rest
 
-RUN chmod 777 config/stores config/uploads
+RUN chmod 777 ./config/stores ./config/uploads
 
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s CMD ["sh", "-c", "curl http://127.0.0.1:3000${PRODUCTION_ROUTER_BASE_PATH}/health || exit 1"]
 
-VOLUME ["/usr/app/config/stores","/usr/app/config/uploads"]
+VOLUME ["/usr/app/${SERVICE_NAME}/config/stores","/usr/app/${SERVICE_NAME}/config/uploads"]
 CMD ["go-whatsapp-rest"]
