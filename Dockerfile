@@ -1,6 +1,6 @@
 # Builder Image
 # ---------------------------------------------------
-FROM dimaskiddo/alpine:go-1.13 AS go-builder
+FROM dimaskiddo/alpine:go-1.15 AS go-builder
 
 WORKDIR /usr/src/app
 
