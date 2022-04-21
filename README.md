@@ -2,7 +2,7 @@
 
 This repository contains example of implementation [Rhymen/go-whatsapp](https://github.com/Rhymen/go-whatsapp) package. This example is using a codebase from [dimaskiddo/codebase-go-rest-lite](https://github.com/dimaskiddo/codebase-go-rest-lite).
 
-###Warning
+### Warning
 
 Since WhatsApp is migrating to Multi-Device support then this repository might be unusable in the future. For Go WhatsApp REST with Multi-Device support please visit the new repository [dimaskiddo/go-whatsapp-multidevice-rest](https://github.com/dimaskiddo/go-whatsapp-multidevice-rest)
 
